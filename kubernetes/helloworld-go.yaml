@@ -34,4 +34,4 @@ spec:
         - containerPort: 8080
         env:
         - name: TARGET
-          value: "Knative"
+          value: "Kata Containers"

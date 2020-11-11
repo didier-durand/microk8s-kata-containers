@@ -1,0 +1,35 @@
+name:  Build Docker Images
+
+on:  
+
+  push:
+  
+  workflow_dispatch:
+    inputs:
+      workflowAction:
+        description: 'Action'
+        default: 'Build helloworld-go and autoscale-go'
+        required: true
+ 
+jobs:
+  microk8s-kata-containers-docker-build:
+  
+    runs-on: ubuntu-20.04
+
+    steps:
+      
+    - name: Check environment
+      run: |-
+        lsb_release -a
+        
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Build helloworld-go & autoscale container images
+      run: |-
+         echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERID }} --password-stdin
+         docker build --file docker/Dockerfile-helloworld --tag didierdurand/helloworld-go .
+         docker push didierdurand/helloworld-go
+         docker build --file docker/Dockerfile-autoscale --tag didierdurand/autoscale-go .
+         docker push didierdurand/helloworld-go
+         rm  /home/runner/.docker/config.json
