@@ -8,7 +8,7 @@ on:
     inputs:
       workflowAction:
         description: 'Action'
-        default: 'Build helloworld-go and autoscale-go'
+        default: 'Build helloworld-go and autoscale-go images'
         required: true
  
 jobs:
@@ -28,8 +28,10 @@ jobs:
     - name: Build helloworld-go & autoscale container images
       run: |-
          echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERID }} --password-stdin
+         echo "build and push helloworld-go:"
          docker build --file docker/Dockerfile-helloworld --tag didierdurand/helloworld-go .
          docker push didierdurand/helloworld-go
+         echo "build and push autoscale-go:"
          docker build --file docker/Dockerfile-autoscale --tag didierdurand/autoscale-go .
-         docker push didierdurand/helloworld-go
+         docker push didierdurand/autoscale-go
          rm  /home/runner/.docker/config.json
