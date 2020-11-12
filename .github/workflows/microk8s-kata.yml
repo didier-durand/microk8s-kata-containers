@@ -43,13 +43,10 @@ jobs:
     
     - name: install MicroK8s + Kata Containers
       env: 
-        G_KATA_GCE_DELETE: true
-        G_GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+        KATA_GCE_DELETE: true
+        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |-
-        echo '--- start shell ---'
-        bash -c "export KATA_GCE_DELETE=$G_KATA_GCE_DELETE \
-                        && export GCP_PROJECT=$G_GCP_PROJECT \
-                        && bash sh/microk8s-kata.sh"
+        bash sh/microk8s-kata.sh"
                          
     - name: commit back changed files
       run: | 
