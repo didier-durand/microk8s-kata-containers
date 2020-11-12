@@ -1,0 +1,34 @@
+sleep 8sapiVersion: v1
+kind: Service
+metadata:
+  name: autoscale-go
+spec:
+  selector:
+    app: autoscale-go
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoscale-go-deployment
+  labels:
+    app: autoscale-go
+spec:
+  selector:
+    matchLabels:
+      app: autoscale-go
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: autoscale-go
+    spec:
+      containers:
+      - name: autoscale-go
+        image: didierdurand/autoscale-go
+        ports:
+        - containerPort: 8080
