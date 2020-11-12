@@ -130,6 +130,15 @@ then
       gcloud compute ssh $KATA_INSTANCE --command="sudo chmod ugo+x ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="bash ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       
+      if [[ ! -z "$GITHUB_WORKFLOW" ]]
+      then
+        gcloud compute scp $KATA_INSTANCE:$REPORT $REPORT --zone $GCP_ZONE --project=$GCP_PROJECT
+        cat README.template.md > README.md
+        echo '```' >> README.md
+        cat $REPORT > README.md || true
+        echo '```' >> README.md
+      fi
+      
       if [[ $KATA_GCE_DELETE == 'true' ]]
       then
         delete_gce_instance $KATA_INSTANCE $KATA_IMAGE
