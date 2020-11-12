@@ -3,8 +3,8 @@
 
 # Kata Containers on MicroK8s
 
-![workflow badge](https://github.com/didier-durand/metak8s-PRIVATE/workflows/Kata%20Containers%20%on%20MicroK8s/badge.svg)
-![workflow badge](https://github.com/didier-durand/metak8s-PRIVATE/workflows/MicroK8s%20Services%20Images/badge.svg)
+![workflow badge](https://github.com/didier-durand/microk8s-kata/workflows/Kata%20Containers%20%on%20MicroK8s/badge.svg)
+![workflow badge](https://github.com/didier-durand/microk8s-kata/workflows/MicroK8s%20Services%20Images/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 * [Goal](README.md#goal)
