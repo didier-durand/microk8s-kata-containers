@@ -8,7 +8,7 @@ catch() {
     if [[ ! -z "$GITHUB_WORKFLOW" ]]
     then
       # delete cloud instance in case of failure when run scheduled on GitHub (to save costs...)
-      delete_gce_instance $KATA_INSTANCE $KATA_IMAGE
+      #delete_gce_instance $KATA_INSTANCE $KATA_IMAGE || true
     fi
   fi
 }
@@ -74,6 +74,7 @@ delete_gce_instance()
   gcloud compute instances delete \
       --zone $GCP_ZONE \
       --project=$GCP_PROJECT \
+      --quiet \
       $GCE_INSTANCE   
   
   echo -e "\n### delete gce image:"     
