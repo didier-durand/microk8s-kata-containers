@@ -49,7 +49,7 @@ jobs:
         echo '--- start shell ---'
         bash -c "export KATA_GCE_DELETE=$G_KATA_GCE_DELETE \
                         && export GCP_PROJECT=$G_GCP_PROJECT \
-                        && sh/microk8s-kata.sh"
+                        && bash sh/microk8s-kata.sh"
                          
     - name: commit back changed files
       run: | 
