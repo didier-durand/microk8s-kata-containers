@@ -234,7 +234,7 @@ sudo microk8s stop
 
 if [[ -d microk8s-squash ]]
 then
-  rm -rf microk8s-squash
+  sudo rm -rf microk8s-squash
 fi
 mkdir microk8s-squash
 cd microk8s-squash
