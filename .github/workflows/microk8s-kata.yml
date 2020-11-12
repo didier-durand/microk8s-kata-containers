@@ -46,7 +46,7 @@ jobs:
         KATA_GCE_DELETE: true
         GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |-
-        bash sh/microk8s-kata.sh"
+        bash sh/microk8s-kata.sh
                          
     - name: commit back changed files
       run: | 
