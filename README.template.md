@@ -7,12 +7,12 @@
 ![workflow badge](https://github.com/didier-durand/metak8s-PRIVATE/workflows/MicroK8s%20Services%20Images/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-* [Goal](README-kata.md#goal)
-* [Kata Containers - Rationale](README-kata.md#kata-containers---rationale)
-* [Specific Setup](README-kata.md#specific-setup)
-* [Workflow Steps](README-kata.md#workflow-steps)
-* [How to Fork & Run](README-kata.md#how-to-fork--run)
-* [Execution Report](README-kata.md#execution-report)
+* [Goal](README.md#goal)
+* [Kata Containers - Rationale](README.md#kata-containers---rationale)
+* [Specific Setup](README.md#specific-setup)
+* [Workflow Steps](README.md#workflow-steps)
+* [How to Fork & Run](README.md#how-to-fork--run)
+* [Execution Report](README.md#execution-report)
 
 
 ## Goal
@@ -25,7 +25,7 @@ The workflow tests the proper execution of sample containers with 'kata-runtime'
 
 [MicroK8s](https://microk8s.io/) by Canonical was chosen on purpose for this project: its source code is extremely close to the upstream version of Kubernetes. Consequently, it allows to build a fully-featured production-grade Kubernetes cluster that can be run autonomously - on a single Limux instance - with very sensible default configuration allowing a quick setup, quite representative of a productive system. The source code of Micro8s is extremely close to the upstream version of Kubernetes.
 
-To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Docker, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](actions). Excerpts of last execution are gathered [further down in this page](README-kata.md#execution-report).
+To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Docker, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
 
 **Forking and re-using on your own is strongly encouraged!** All comments for improvements and extensions will be welcome. Finally, if you like this repo, please give a Github star so that it gets more easily found by others.
 
@@ -39,7 +39,7 @@ This added lightweight virtual machine comes with a dedicated Linux kernel, prov
 
 The use of a per-container dedicated kernel and lightweight virtual machines, provided by either [Qemu](https://www.qemu.org/) or [Amazon's Firecracker](https://firecracker-microvm.github.io/), creates a much stronger isolation between the containers themselves and with the host. For example, if a container misbehaves and messes up with the kernel resources by overconsuming or corrupting them, it's only **HIS** dedicated kernel that gets damaged, not the unique kernel shared between all containers and host, as when you're using regular containers. The picture above shows the clear differences between the two architectures. So, Kata Containers are probably the best option currently available for additional security and reliability with untrusted workloads of all kinds (recent versions, external source code, etc.). 
 
-As you would expect, this further level of isolation through additional virtualization comes with a performance / cost penalty but this [comparative study](https://object-storage-ca-ymq-1.vexxhost.net/swift/v1/6e4619c416ff4bd19e1c087f27a43eea/www-assets-prod/presentation-media/kata-containers-and-gvisor-a-quantitave-comparison.pdf) between the performances of raw host performances, *"runc"*, [Google's gVisor](https://gvisor.dev/) containers and Kata Containers demonstrates that the overhead remains quite acceptable in many situations for the additional security that is delivered. Look at slides 19 to 26 to get the exact numbers.
+As you would expect, this further level of isolation through additional virtualization comes with a performance / cost penalty but this [comparative study](https://object-storage-ca-ymq-1.vexxhost.net/swift/v1/6e4619c416ff4bd19e1c087f27a43eea/www-assets-prod/presentation-media/kata-containers-and-gvisor-a-quantitave-comparison.pdf) between the performances of raw host performances, *"runc"*, [Google's gVisor](https://gvisor.dev/) containers and Kata Containers demonstrates that the overhead remains quite acceptable in many situations for the additional security that is delivered. Look at slides 19 to 26 of the linked pdf to get the exact numbers.
 
 ## Specific Setup
 
@@ -58,7 +58,7 @@ The major steps in this workflow are:
 3. Check that this added runtime can run on the instance: command *"kata-runtime kata-check"* MUST produce output *"System is capable of running Kata Containers"*
 4. Install Docker and check via *"docker info"* that it sees both its standard runtime *"runc"* and the newly added *"kata-runtime"*
 5. Run the latest version of [Alpine Linux](https://en.wikipedia.org/wiki/Alpine_Linux) image with selection of kata-runtime (*"--runtime='kata-runtime"*) and verify through *"docker info"* that the running Alpine is effectively using kata-runtime.
-6. Install MicroK8s via snap and check that it works properly via the deployment of [helloworld-go.yml](kubernetes/helloworld-go.yml) and [autoscale-go.yml](kubernetes/autoscale-go.yml) service manifests, built from from GoLang source code in [src directory](src). Stop MicroK8s when validation is successful.
+6. Install MicroK8s via snap and check that it works properly via the deployment of [helloworld-go.yml](kubernetes/helloworld-go.yml) and [autoscale-go.yml](kubernetes/autoscale-go.yml) service manifests, built from from GoLang source code in [src/go directory](src/go). Stop MicroK8s when validation is successful.
 7. Open the MicroK8s .snap file to add kata-runtime and repackage a new version (now unsigned) of the .snap file. Please, note use of *"unsquashfs"* and *"mksquashfs"* to achieve this refurbishing since the [snap archive format](https://en.wikipedia.org/wiki/Snap_(package_manager)) is based on read-only and compressed [SquashFS](https://en.wikipedia.org/wiki/SquashFS) Linux file system.
 8. Remove old MicroK8s installation and re-install a fresh instance based with newly created snap version: *"--dangerous"* option is now required since the tweaked .snap is no longer signed by its official provider, Canonical.
 9. Deploy again helloworld-go and autoscale-go on fresh MicroK8s to validate that they work fine with kata-runtime: autoscale-go request is parametrized to make sure that some amount computing resources are consumed to achieve a better validation.
@@ -73,7 +73,7 @@ Then, fork our repository and define the required [Github Secrets](https://docs.
 1. your GCP project id will be {{ secrets.GCP_PROJECT }}
 2. The private key of your service account in json format will be ${{ secrets.GCP_SA_KEY }} 
 
-To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/)that you can see as a launch button in the Action tab of your fork.
+To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button in the Action tab of your fork.
 
 The workflow will execute all the steps described above and terminate gracefully after all validation tests described are completed: it will then delete the GCE instance and the associated image triggering the nested virtualization.
 
