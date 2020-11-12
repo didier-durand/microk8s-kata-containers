@@ -293,32 +293,32 @@ ls -l /snap/microk8s/current/bin/kata-runtime | tee "$REPORT"
 cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
 
 cat README.template.md > READMEx.md || true
-echo '```' >> READMEx.md
-echo "execution date: $(date --utc)" >> READMEx.md
+echo '```' >> README.md
+echo "execution date: $(date --utc)" >> README.md
 echo " " >> README.md
 
-echo "microk8s snap version: $(snap list | grep 'microk8s')" >> READMEx.md
-echo " " >> READMEx.md
+echo "microk8s snap version: $(snap list | grep 'microk8s')" >> README.md
+echo " " >> README.md
 
-echo "ubuntu version: " >> READMEx.md
-echo " " >> READMEx.md
-echo "$(lsb_release -a)" >> READMEx.md
-echo " " >> READMEx.md
+echo "ubuntu version: " >> README.md
+echo " " >> README.md
+echo "$(lsb_release -a)" >> README.md
+echo " " >> README.md
 
-echo "docker version: " >> READMEx.md
-echo " " >> READMEx.md
-echo "$(docker version)" >> READMEx.md
-echo " " >> READMEx.md
+echo "docker version: " >> README.md
+echo " " >> README.md
+echo "$(docker version)" >> README.md
+echo " " >> README.md
 
-echo "kata-runtime version: $(kata-runtime --version) " >> READMEx.md
-echo "kata-runtime env: " >> READMEx.md
-echo "$(kata-runtime kata-env)" >> READMEx.md
-echo "kata-runtime check: " >> READMEx.md
-echo "$(kata-runtime kata-check -n)" >> READMEx.md
+echo "kata-runtime version: $(kata-runtime --version) " >> README.md
+echo "kata-runtime env: " >> README.md
+echo "$(kata-runtime kata-env)" >> README.md
+echo "kata-runtime check: " >> README.md
+echo "$(kata-runtime kata-check -n)" >> README.md
 
-cat $REPORT >> READMEx.md
+cat $REPORT >> README.md
 
-echo '```' >> READMEx.md
+echo '```' >> README.md
 
 echo "### execution report: " 
 cat $REPORT
