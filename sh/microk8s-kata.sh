@@ -9,6 +9,7 @@ catch() {
     then
       # delete cloud instance in case of failure when run scheduled on GitHub (to save costs...)
       #delete_gce_instance $KATA_INSTANCE $KATA_IMAGE || true
+      true
     fi
   fi
 }
