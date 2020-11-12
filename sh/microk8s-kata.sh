@@ -316,12 +316,10 @@ echo "microk8s snap version: $(snap list | grep 'microk8s')" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "ubuntu version:" >> "$REPORT.tmp"
-echo " " >> "$REPORT.tmp"
 echo "$(lsb_release -a)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "docker version:" >> "$REPORT.tmp"
-echo " " >> "$REPORT.tmp"
 echo "$(docker version)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
