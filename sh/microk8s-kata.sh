@@ -24,7 +24,7 @@ fi
 ON_GCE=$((curl -s -i metadata.google.internal | grep 'Google') || true)
 
 # variables below can be inherited from environment
-if [[ -z ${GCP_PROJECT+x} && ! "$ON_GCE" == *'Google'* ]]    ; then echo "ERROR: gcp project not set" && false ; fi
+if [[ -z ${GCP_PROJECT+x} && ! "$ON_GCE" == *'Google'* ]]    ; then echo "ERROR: gcp project not set" && false ; fi ; echo "gcp project: $GCP_PROJECT"
 if [[ -z ${GCP_ZONE+x} ]]                                    ; then GCP_ZONE='us-central1-c'                   ; fi ; echo "gcp zone: $GCP_ZONE"
 
 if [[ -z ${KATA_GCE_CREATE+x} ]]                             ; then KATA_GCE_CREATE='true'                     ; fi ; echo "kata gce create: $KATA_GCE_CREATE"
