@@ -129,6 +129,11 @@ then
       gcloud compute scp $0  $KATA_INSTANCE:$(basename $0) --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="sudo chmod ugo+x ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="bash ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
+      
+      if [[ $KATA_GCE_DELETE == 'true' ]]
+      then
+        delete_gce_instance $KATA_INSTANCE $KATA_IMAGE
+      fi
   fi
 fi
 
@@ -250,6 +255,7 @@ ls -lh "microk8s-squash/$(basename $MK8S_SNAP)"
 
 echo -e "\n### re-install microk8s incl kata-runtime: " | tee "$REPORT"
 sudo microk8s start
+sudo microk8s status --wait-ready
 sudo snap remove microk8s
 sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)" | tee "$REPORT"
 
@@ -292,7 +298,8 @@ ls -l /bin/kata-runtime | tee "$REPORT"
 ls -l /snap/microk8s/current/bin/kata-runtime | tee "$REPORT"
 cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
 
-cat README.template.md > READMEx.md || true
+echo -e "\n### prepare execution report:"
+cat README.template.md > README.md || true
 echo '```' >> README.md
 echo "execution date: $(date --utc)" >> README.md
 echo " " >> README.md
@@ -300,30 +307,25 @@ echo " " >> README.md
 echo "microk8s snap version: $(snap list | grep 'microk8s')" >> README.md
 echo " " >> README.md
 
-echo "ubuntu version: " >> README.md
+echo "ubuntu version:" >> README.md
 echo " " >> README.md
 echo "$(lsb_release -a)" >> README.md
 echo " " >> README.md
 
-echo "docker version: " >> README.md
+echo "docker version:" >> README.md
 echo " " >> README.md
 echo "$(docker version)" >> README.md
 echo " " >> README.md
 
-echo "kata-runtime version: $(kata-runtime --version) " >> README.md
-echo "kata-runtime env: " >> README.md
+echo "kata-runtime version: $(kata-runtime --version)" >> README.md
+echo "kata-runtime env:" >> README.md
 echo "$(kata-runtime kata-env)" >> README.md
-echo "kata-runtime check: " >> README.md
+echo "kata-runtime check:" >> README.md
 echo "$(kata-runtime kata-check -n)" >> README.md
 
 cat $REPORT >> README.md
 
 echo '```' >> README.md
 
-echo "### execution report: " 
+echo "### execution report:" 
 cat $REPORT
-
-if [[ $KATA_GCE_DELETE == 'true' ]]
-then
-  delete_gce_instance $KATA_INSTANCE $KATA_IMAGE
-fi
