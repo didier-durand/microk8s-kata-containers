@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: alpine-shell
+  name: nginx-test
 spec:
   containers:
-  - name: alpine
-    image: alpine
+  - name: nginx-test
+    image: nginx
   hostNetwork: true
   dnsPolicy: Default
