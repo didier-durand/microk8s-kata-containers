@@ -24,6 +24,9 @@ jobs:
     - name: Check environment
       run: |-
         lsb_release -a
+    
+    - name: Checkout
+      uses: actions/checkout@v2
         
     - name: Setup gcloud CLI
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -37,15 +40,13 @@ jobs:
         gcloud components update
         echo '--- gcloud version ---'
         gcloud version
-        
-    - name: Checkout
-      uses: actions/checkout@v2
     
     - name: install MicroK8s + Kata Containers
       env: 
         G_KATA_GCE_DELETE: true
         G_GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |-
+        ls -l $HOME/.config/gcloud
         sudo chown $USER -R $HOME/.config/gcloud
         echo '--- start shell ---'
         sudo -- bash -c "export KATA_GCE_DELETE=$G_KATA_GCE_DELETE \
