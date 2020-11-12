@@ -135,7 +135,7 @@ then
         gcloud compute scp $KATA_INSTANCE:$REPORT $REPORT --zone $GCP_ZONE --project=$GCP_PROJECT
         cat README.template.md > README.md
         echo '```' >> README.md
-        cat $REPORT > README.md || true
+        cat $REPORT >> README.md || true
         echo '```' >> README.md
       fi
       
@@ -308,33 +308,32 @@ ls -l /snap/microk8s/current/bin/kata-runtime | tee "$REPORT"
 cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
 
 echo -e "\n### prepare execution report:"
-echo -e "current directory: $(pwd)"
-ls
-cat README.template.md > README.md || true
-echo '```' >> README.md
-echo "execution date: $(date --utc)" >> README.md
-echo " " >> README.md
 
-echo "microk8s snap version: $(snap list | grep 'microk8s')" >> README.md
-echo " " >> README.md
+echo "execution date: $(date --utc)" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
 
-echo "ubuntu version:" >> README.md
-echo " " >> README.md
-echo "$(lsb_release -a)" >> README.md
-echo " " >> README.md
+echo "microk8s snap version: $(snap list | grep 'microk8s')" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
 
-echo "docker version:" >> README.md
-echo " " >> README.md
-echo "$(docker version)" >> README.md
-echo " " >> README.md
+echo "ubuntu version:" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
+echo "$(lsb_release -a)" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
 
-echo "kata-runtime version: $(kata-runtime --version)" >> README.md
-echo "kata-runtime env:" >> README.md
-echo "$(kata-runtime kata-env)" >> README.md
-echo "kata-runtime check:" >> README.md
-echo "$(kata-runtime kata-check -n)" >> README.md
+echo "docker version:" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
+echo "$(docker version)" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
 
-cat $REPORT >> README.md
+echo "kata-runtime version: $(kata-runtime --version)" >> "$REPORT.tmp"
+echo "kata-runtime env:" >> "$REPORT.tmp"
+echo "$(kata-runtime kata-env)" >> "$REPORT.tmp"
+echo "kata-runtime check:" >> "$REPORT.tmp"
+echo "$(kata-runtime kata-check -n)" >> "$REPORT.tmp"
+
+cat $REPORT >> "$REPORT.tmp"
+rm "$REPORT"
+mv "$REPORT.tmp" $REPORT
 
 echo '```' >> README.md
 
