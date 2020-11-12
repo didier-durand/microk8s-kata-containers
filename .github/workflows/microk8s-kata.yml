@@ -46,12 +46,10 @@ jobs:
         G_KATA_GCE_DELETE: true
         G_GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |-
-        ls -l $HOME/.config/gcloud
-        sudo chown $USER -R $HOME/.config/gcloud
         echo '--- start shell ---'
-        sudo -- bash -c "export KATA_GCE_DELETE=$G_KATA_GCE_DELETE \
-                         && export GCP_PROJECT=$G_GCP_PROJECT \
-                         && sh/microk8s-kata.sh"
+        bash -c "export KATA_GCE_DELETE=$G_KATA_GCE_DELETE \
+                        && export GCP_PROJECT=$G_GCP_PROJECT \
+                        && sh/microk8s-kata.sh"
                          
     - name: commit back changed files
       run: | 

@@ -2,7 +2,7 @@ name:  MicroK8s Services Images
 
 on:  
 
-  push:
+  #push:
   
   workflow_dispatch:
     inputs:
