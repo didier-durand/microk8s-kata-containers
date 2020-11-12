@@ -1,4 +1,4 @@
-sleep 8sapiVersion: v1
+apiVersion: v1
 kind: Service
 metadata:
   name: autoscale-go
