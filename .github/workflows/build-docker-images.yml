@@ -1,4 +1,4 @@
-name:  Build Docker Images
+name:  MicroK8s Services Images
 
 on:  
 
