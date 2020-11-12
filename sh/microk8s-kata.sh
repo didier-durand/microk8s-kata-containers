@@ -299,6 +299,8 @@ ls -l /snap/microk8s/current/bin/kata-runtime | tee "$REPORT"
 cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
 
 echo -e "\n### prepare execution report:"
+echo -e "current directory: $(pwd)"
+ls
 cat README.template.md > README.md || true
 echo '```' >> README.md
 echo "execution date: $(date --utc)" >> README.md
