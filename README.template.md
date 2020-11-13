@@ -75,6 +75,8 @@ Then, fork our repository and define the required [Github Secrets](https://docs.
 
 To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button in the Action tab of your fork.
 
+<img src="img/microk8s-kata-launch-button.jpg" height="250">
+
 The workflow will execute all the steps described above and terminate gracefully after all validation tests described are completed: it will then delete the GCE instance and the associated image triggering the nested virtualization.
 
 If you also want to make use of the [side workflow](.github/workflows/build-docker-images.yml) allowing to build the test container images from their GoLang sources, you'll need to add 2 additional secrets : {{ secrets.DOCKER_USERID }} & {{ secrets.DOCKER_PASSWORD }} corresponding to the login parameters of your [Docker Hub account](https://hub.docker.com/).
