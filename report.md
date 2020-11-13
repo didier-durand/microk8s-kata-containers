@@ -1,4 +1,4 @@
-execution date: Fri Nov 13 05:05:46 UTC 2020
+execution date: Fri Nov 13 06:03:40 UTC 2020
  
 microk8s snap version: microk8s          v1.19.3    x1     -                -                  classic
  
@@ -42,13 +42,13 @@ kata-runtime check:
 System is capable of running Kata Containers
 
 ### test use of kata-runtime with alpine: 
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
-0904b0f6f199        alpine              "sh"                2 seconds ago       Up Less than a second                          kata-alpine
-ef8c7be19c9a        busybox             "uname -a"          11 seconds ago      Exited (0) 8 seconds ago                       keen_jang
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+e7f18560d7c5        alpine              "sh"                2 seconds ago       Up Less than a second                           kata-alpine
+dc0d1b00045f        busybox             "uname -a"          13 seconds ago      Exited (0) 10 seconds ago                       silly_mestorf
 [
     {
-        "Id": "0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571",
-        "Created": "2020-11-13T04:56:27.76189265Z",
+        "Id": "e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4",
+        "Created": "2020-11-13T05:53:30.62884417Z",
         "Path": "sh",
         "Args": [],
         "State": {
@@ -58,17 +58,17 @@ ef8c7be19c9a        busybox             "uname -a"          11 seconds ago      
             "Restarting": false,
             "OOMKilled": false,
             "Dead": false,
-            "Pid": 8131,
+            "Pid": 8133,
             "ExitCode": 0,
             "Error": "",
-            "StartedAt": "2020-11-13T04:56:29.545401938Z",
+            "StartedAt": "2020-11-13T05:53:32.552790942Z",
             "FinishedAt": "0001-01-01T00:00:00Z"
         },
         "Image": "sha256:d6e46aa2470df1d32034c6707c8041158b652f38d2a9ae3d7ad7e7532d22ebe0",
-        "ResolvConfPath": "/var/lib/docker/containers/0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571/resolv.conf",
-        "HostnamePath": "/var/lib/docker/containers/0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571/hostname",
-        "HostsPath": "/var/lib/docker/containers/0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571/hosts",
-        "LogPath": "/var/lib/docker/containers/0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571/0904b0f6f19928ec2608a282d264caad5e7a5681a8ad837d8d58f09217b66571-json.log",
+        "ResolvConfPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/hostname",
+        "HostsPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/hosts",
+        "LogPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4-json.log",
         "Name": "/kata-alpine",
         "RestartCount": 0,
         "Driver": "overlay2",
@@ -172,16 +172,16 @@ ef8c7be19c9a        busybox             "uname -a"          11 seconds ago      
         },
         "GraphDriver": {
             "Data": {
-                "LowerDir": "/var/lib/docker/overlay2/f6ce9a76c37aaa242a97e18efd2d45dc671b8cbfaefbecea28c3723ef767b9a3-init/diff:/var/lib/docker/overlay2/39c8d331e08db4e01e987048938fba3d67be4a285203222e40896600d9a9a105/diff",
-                "MergedDir": "/var/lib/docker/overlay2/f6ce9a76c37aaa242a97e18efd2d45dc671b8cbfaefbecea28c3723ef767b9a3/merged",
-                "UpperDir": "/var/lib/docker/overlay2/f6ce9a76c37aaa242a97e18efd2d45dc671b8cbfaefbecea28c3723ef767b9a3/diff",
-                "WorkDir": "/var/lib/docker/overlay2/f6ce9a76c37aaa242a97e18efd2d45dc671b8cbfaefbecea28c3723ef767b9a3/work"
+                "LowerDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81-init/diff:/var/lib/docker/overlay2/c3ad96f122088853e76045aae68e34fa23417449bf91849a784e1f00e3d596b2/diff",
+                "MergedDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/merged",
+                "UpperDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/diff",
+                "WorkDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/work"
             },
             "Name": "overlay2"
         },
         "Mounts": [],
         "Config": {
-            "Hostname": "0904b0f6f199",
+            "Hostname": "e7f18560d7c5",
             "Domainname": "",
             "User": "",
             "AttachStdin": false,
@@ -205,15 +205,15 @@ ef8c7be19c9a        busybox             "uname -a"          11 seconds ago      
         },
         "NetworkSettings": {
             "Bridge": "",
-            "SandboxID": "603fd7b4a5542e83210f6a6c4f9c4e9c56b6d073df1797cf3400fb2b1b83d7c0",
+            "SandboxID": "731f27ca76672309d56a5de78b3b422a224c1cbe323efe6902c326ca777b730b",
             "HairpinMode": false,
             "LinkLocalIPv6Address": "",
             "LinkLocalIPv6PrefixLen": 0,
             "Ports": {},
-            "SandboxKey": "/var/run/docker/netns/603fd7b4a554",
+            "SandboxKey": "/var/run/docker/netns/731f27ca7667",
             "SecondaryIPAddresses": null,
             "SecondaryIPv6Addresses": null,
-            "EndpointID": "d78b8498a9ce82510f94d134224e39c61996712caead6357b217b6e6d09e672a",
+            "EndpointID": "3c1e8d482b98bbbdd568d06ecc18df128078c6e7a85e2b5f06a922f9812cb8de",
             "Gateway": "172.17.0.1",
             "GlobalIPv6Address": "",
             "GlobalIPv6PrefixLen": 0,
@@ -226,8 +226,8 @@ ef8c7be19c9a        busybox             "uname -a"          11 seconds ago      
                     "IPAMConfig": null,
                     "Links": null,
                     "Aliases": null,
-                    "NetworkID": "87388c0a11da5a999b282ac665ba853690aa1c2320df5b0aa141ee994b069852",
-                    "EndpointID": "d78b8498a9ce82510f94d134224e39c61996712caead6357b217b6e6d09e672a",
+                    "NetworkID": "64b739e484e04bc2370ed5eaffe62e5932cc033c5eae3c6f42f68b45944100fa",
+                    "EndpointID": "3c1e8d482b98bbbdd568d06ecc18df128078c6e7a85e2b5f06a922f9812cb8de",
                     "Gateway": "172.17.0.1",
                     "IPAddress": "172.17.0.2",
                     "IPPrefixLen": 16,
@@ -290,23 +290,23 @@ service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
 nginx-test                                 0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-jw229   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-tm4qs   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-rclsc   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-94kpv   0/1     Pending             0          0s
+helloworld-go-deployment-86f5466d4-7gtsx   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-nhbg2   0/1     Pending             0          0s
+helloworld-go-deployment-86f5466d4-dbjcj   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-4jtch   0/1     Pending             0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
 nginx-test                                 1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-rclsc   1/1     Running   0          2m
-autoscale-go-deployment-5894658957-94kpv   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-tm4qs   1/1     Running   0          2m1s
-helloworld-go-deployment-86f5466d4-jw229   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-7gtsx   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-dbjcj   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-4jtch   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-nhbg2   1/1     Running   0          2m
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
 kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m33s
-helloworld-go   NodePort    10.152.183.157   <none>        80:30107/TCP   2m1s
-autoscale-go    NodePort    10.152.183.13    <none>        80:30088/TCP   2m
+helloworld-go   NodePort    10.152.183.42    <none>        80:30839/TCP   2m1s
+autoscale-go    NodePort    10.152.183.206   <none>        80:31847/TCP   2m
 
 calling helloworld-go...
 
@@ -316,7 +316,7 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.21 milliseconds.
+Slept for 100.64 milliseconds.
 
 ### re-install microk8s incl kata-runtime: 
 microk8s v1.19.3 installed
@@ -358,27 +358,27 @@ deployment.apps/helloworld-go-deployment created
 service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
-nginx-test                                 0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-xg494   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-2pgbr   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-g5f2x   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-kkkhr   0/1     Pending             0          0s
+nginx-test                                 0/1     ContainerCreating   0          2s
+helloworld-go-deployment-86f5466d4-jp8nm   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-bs4dh   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-llgjs   0/1     Pending             0          1s
+autoscale-go-deployment-5894658957-p7qhf   0/1     ContainerCreating   0          1s
 NAME                                       READY   STATUS    RESTARTS   AGE
-nginx-test                                 1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-g5f2x   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-xg494   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-kkkhr   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-2pgbr   1/1     Running   0          2m1s
+nginx-test                                 1/1     Running   0          2m2s
+helloworld-go-deployment-86f5466d4-bs4dh   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-jp8nm   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-p7qhf   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-llgjs   1/1     Running   0          2m1s
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m34s
-helloworld-go   NodePort    10.152.183.221   <none>        80:31766/TCP   2m1s
-autoscale-go    NodePort    10.152.183.209   <none>        80:30487/TCP   2m
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m35s
+helloworld-go   NodePort    10.152.183.195   <none>        80:30144/TCP   2m2s
+autoscale-go    NodePort    10.152.183.163   <none>        80:30064/TCP   2m1s
 Hello World: Kata Containers!
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.15 milliseconds.
+Slept for 100.55 milliseconds.
 
 ### check proper symlink from microk8s runc:
-lrwxrwxrwx 1 root root 30 Nov 13 05:00 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
+lrwxrwxrwx 1 root root 30 Nov 13 05:57 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
 -rwxr-xr-x 1 root root 31560112 Oct 22 16:51 /bin/kata-runtime
--rwxr-xr-x 1 root root 31560112 Nov 13 05:00 /snap/microk8s/current/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 13 05:57 /snap/microk8s/current/bin/kata-runtime
