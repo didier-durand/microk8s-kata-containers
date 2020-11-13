@@ -217,7 +217,9 @@ fi
 echo -e "\n### check container runtime on microk8s snap:" | tee -a "$REPORT"
 ls -lh /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee -a "$REPORT"
+echo -e "\n### TEST WITH RUNC\n" | tee -a "$REPORT"
+
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml"
 
 echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee -a "$REPORT"
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
@@ -234,14 +236,13 @@ sleep 120s
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
-#docker exec -it c-nginx cat /proc/cpuinfo
-#sudo microk8s kubectl get pod nginx-test
-echo -e "\n### cat /proc/cpuinfo to detect QEMU presence:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'model name' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'QEMU' || true
-
-#curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
-#curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
+echo -e "\n### lscpu:" | tee -a "$REPORT"
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
 echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
 curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
@@ -282,7 +283,9 @@ echo -e "\n### restart microk8s: "
 sudo microk8s start
 sudo microk8s status --wait-ready | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee -a "$REPORT"
+echo -e "\n### TEST WITH KATA-RUNTIME\n" | tee -a "$REPORT"
+
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml"
 
 echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee -a "$REPORT"
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
@@ -299,18 +302,13 @@ sleep 120s
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
-#docker exec -it c-nginx cat /proc/cpuinfo
-#sudo microk8s kubectl get pod nginx-test
-echo -e "\n### cat /proc/cpuinfo to detect QEMU presence:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'model name' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'QEMU' || true
-echo -e "\n### lscpu:"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu || true
-echo -e "\n### dmidecode:"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- dmidecode -s system-product-name || true
-
-#curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
-#curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
+echo -e "\n### lscpu:" | tee -a "$REPORT"
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
 echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
 curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
