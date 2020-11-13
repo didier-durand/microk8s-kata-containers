@@ -236,13 +236,13 @@ sleep 120s
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
-echo -e "\n### lscpu:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
+#echo -e "\n### lscpu:" | tee -a "$REPORT"
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
 echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
 curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
@@ -302,13 +302,13 @@ sleep 120s
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
-echo -e "\n### lscpu:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
-sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
+#echo -e "\n### lscpu:" | tee -a "$REPORT"
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
 echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
 curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
