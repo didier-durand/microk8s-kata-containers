@@ -232,6 +232,8 @@ sleep 120s
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
+#docker exec -it c-nginx cat /proc/cpuinfo
+
 
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
