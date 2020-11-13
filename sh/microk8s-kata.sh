@@ -237,7 +237,7 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 #docker exec -it c-nginx cat /proc/cpuinfo
 #sudo microk8s kubectl get pod nginx-test
 echo -e "\n### cat /proc/cpuinfo to detect QEMU presence:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'model name' | tee -a "$REPORT" || true
 sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'QEMU' || true
 
 #curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
@@ -302,8 +302,9 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 #docker exec -it c-nginx cat /proc/cpuinfo
 #sudo microk8s kubectl get pod nginx-test
 echo -e "\n### cat /proc/cpuinfo to detect QEMU presence:" | tee -a "$REPORT"
-sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | tee -a "$REPORT" || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'model name' | tee -a "$REPORT" || true
 sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'QEMU' || true
+sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu || true
 
 #curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 #curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
