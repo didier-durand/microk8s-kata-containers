@@ -304,7 +304,10 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 echo -e "\n### cat /proc/cpuinfo to detect QEMU presence:" | tee -a "$REPORT"
 sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'model name' | tee -a "$REPORT" || true
 sudo microk8s kubectl exec --stdin --tty nginx-test -- cat /proc/cpuinfo | grep 'QEMU' || true
+echo -e "\n### lscpu:"
 sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu || true
+echo -e "\n### dmidecode:"
+sudo microk8s kubectl exec --stdin --tty nginx-test -- dmidecode -s system-product-name || true
 
 #curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 #curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
