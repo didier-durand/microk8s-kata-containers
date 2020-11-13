@@ -1,4 +1,4 @@
-### execution date: Fri Nov 13 06:29:10 UTC 2020
+### execution date: Fri Nov 13 07:14:33 UTC 2020
  
 ### microk8s snap version:
 microk8s          v1.19.3    1791   1.19/stable      canonical*         classic
@@ -53,10 +53,10 @@ System is capable of running Kata Containers
 
 ### test use of kata-runtime with alpine: 
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
-b15c5b75de73        alpine              "sh"                1 second ago        Up Less than a second                          kata-alpine
-787781843f27        busybox             "uname -a"          11 seconds ago      Exited (0) 9 seconds ago                       competent_robinson
+8136139cd06d        alpine              "sh"                2 seconds ago       Up Less than a second                          kata-alpine
+9f9ce6a4fdde        busybox             "uname -a"          12 seconds ago      Exited (0) 9 seconds ago                       laughing_montalcini
         "Name": "/kata-alpine",
-        "Id": "b15c5b75de73e1539d3b3a1b341e87cf69bc3d7805e335c6c9453aa74ec2749c",
+        "Id": "8136139cd06d459088981a960b3f84f8ab93ac4309a1d456bff1174de98cbfce",
             "Runtime": "kata-runtime",
 
 ### install microk8s:
@@ -102,133 +102,29 @@ service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
 nginx-test                                 0/1     ContainerCreating   0          2s
-helloworld-go-deployment-86f5466d4-lvvl4   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-lbbdw   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-g8952   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-pqcsb   0/1     ContainerCreating   0          0s
+helloworld-go-deployment-86f5466d4-mdhfd   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-rhzgt   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-hsxjx   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-66hnw   0/1     ContainerCreating   0          1s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
 nginx-test                                 1/1     Running   0          2m2s
-autoscale-go-deployment-5894658957-pqcsb   1/1     Running   0          2m
-autoscale-go-deployment-5894658957-g8952   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-lbbdw   1/1     Running   0          2m1s
-helloworld-go-deployment-86f5466d4-lvvl4   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-mdhfd   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-rhzgt   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-66hnw   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-hsxjx   1/1     Running   0          2m1s
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m33s
-helloworld-go   NodePort    10.152.183.214   <none>        80:30252/TCP   2m1s
-autoscale-go    NodePort    10.152.183.112   <none>        80:31373/TCP   2m1s
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m34s
+helloworld-go   NodePort    10.152.183.241   <none>        80:30330/TCP   2m1s
+autoscale-go    NodePort    10.152.183.234   <none>        80:30553/TCP   2m1s
 
 ### cat /proc/cpuinfo to detect QEMU presence:
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 0
-cpu cores	: 2
-apicid		: 0
-initial apicid	: 0
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 1
-cpu cores	: 2
-apicid		: 2
-initial apicid	: 2
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 2
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 0
-cpu cores	: 2
-apicid		: 1
-initial apicid	: 1
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 3
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 1
-cpu cores	: 2
-apicid		: 3
-initial apicid	: 3
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
 
 calling helloworld-go...
 
@@ -238,7 +134,7 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.15 milliseconds.
+Slept for 100.19 milliseconds.
 
 ### re-install microk8s incl kata-runtime: 
 microk8s v1.19.3 installed
@@ -280,134 +176,30 @@ deployment.apps/helloworld-go-deployment created
 service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
-nginx-test                                 0/1     ContainerCreating   0          2s
-helloworld-go-deployment-86f5466d4-fbk9j   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-9rcs8   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-7s448   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-8sdfz   0/1     ContainerCreating   0          0s
+nginx-test                                 0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-tqtf8   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-x9t6v   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-4lxhz   0/1     Pending             0          0s
+autoscale-go-deployment-5894658957-862j6   0/1     Pending             0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
-nginx-test                                 1/1     Running   0          2m2s
-helloworld-go-deployment-86f5466d4-fbk9j   1/1     Running   0          2m1s
-helloworld-go-deployment-86f5466d4-9rcs8   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-8sdfz   1/1     Running   0          2m
-autoscale-go-deployment-5894658957-7s448   1/1     Running   0          2m
+nginx-test                                 1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-tqtf8   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-x9t6v   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-862j6   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-4lxhz   1/1     Running   0          2m
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m35s
-helloworld-go   NodePort    10.152.183.104   <none>        80:32627/TCP   2m1s
-autoscale-go    NodePort    10.152.183.4     <none>        80:30575/TCP   2m
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m34s
+helloworld-go   NodePort    10.152.183.114   <none>        80:30471/TCP   2m1s
+autoscale-go    NodePort    10.152.183.212   <none>        80:31863/TCP   2m
 
 ### cat /proc/cpuinfo to detect QEMU presence:
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 0
-cpu cores	: 2
-apicid		: 0
-initial apicid	: 0
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 1
-cpu cores	: 2
-apicid		: 2
-initial apicid	: 2
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 2
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 0
-cpu cores	: 2
-apicid		: 1
-initial apicid	: 1
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
-processor	: 3
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 79
 model name	: Intel(R) Xeon(R) CPU @ 2.20GHz
-stepping	: 0
-microcode	: 0x1
-cpu MHz		: 2199.998
-cache size	: 56320 KB
-physical id	: 0
-siblings	: 4
-core id		: 1
-cpu cores	: 2
-apicid		: 3
-initial apicid	: 3
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 13
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp tpr_shadow flexpriority ept vpid fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities
-bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa
-bogomips	: 4399.99
-clflush size	: 64
-cache_alignment	: 64
-address sizes	: 46 bits physical, 48 bits virtual
-power management:
-
 
 calling helloworld-go...
 
@@ -417,9 +209,9 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.18 milliseconds.
+Slept for 100.22 milliseconds.
 
 ### check proper symlink from microk8s runc:
-lrwxrwxrwx 1 root root 30 Nov 13 06:23 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
+lrwxrwxrwx 1 root root 30 Nov 13 07:09 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
 -rwxr-xr-x 1 root root 31560112 Oct 22 16:51 /bin/kata-runtime
--rwxr-xr-x 1 root root 31560112 Nov 13 06:23 /snap/microk8s/current/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 13 07:09 /snap/microk8s/current/bin/kata-runtime
