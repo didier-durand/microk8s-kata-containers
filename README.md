@@ -86,7 +86,7 @@ Below are some relevant excerpts of the last execution log:
 
 
 ```
-execution date: Thu Nov 12 18:25:56 UTC 2020
+execution date: Fri Nov 13 01:26:43 UTC 2020
  
 microk8s snap version: microk8s          v1.19.3    x1     -                -                  classic
  
@@ -225,5 +225,5 @@ kata-runtime env:
     Commit = "<<unknown>>"
 kata-runtime check:
 System is capable of running Kata Containers
--rwxr-xr-x 1 root root 31560112 Nov 12 18:19 /snap/microk8s/current/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 13 01:21 /snap/microk8s/current/bin/kata-runtime
 ```
