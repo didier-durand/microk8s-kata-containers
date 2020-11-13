@@ -54,8 +54,8 @@ create_gce_instance()
         --quiet \
         $GCE_INSTANCE
   fi
-  echo -e "\n### started instance:" | tee "$REPORT"
-  gcloud compute instances list --project=$GCP_PROJECT | tee "$REPORT"
+  echo -e "\n### started instance:" | tee -a "$REPORT"
+  gcloud compute instances list --project=$GCP_PROJECT | tee -a "$REPORT"
   while [[ ! $(gcloud compute ssh $GCE_INSTANCE --command='uname -a' --zone $GCP_ZONE --project=$GCP_PROJECT) == *'Linux'* ]]
   do
     echo -e "instance not ready for ssh..."
@@ -187,60 +187,63 @@ echo -e "\n### check available docker runtimes: "
 docker info
 docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc'
 
-echo -e "\n### test use of kata-runtime with alpine: " | tee "$REPORT"
+echo -e "\n### test use of kata-runtime with alpine: " | tee -a "$REPORT"
 
 docker run --rm --runtime='kata-runtime' alpine ls -l | grep 'etc' | grep 'root'
 docker run --rm --runtime='kata-runtime' alpine cat /etc/hosts | grep 'localhost'
 
 docker run -itd --rm --runtime='kata-runtime' --name='kata-alpine' alpine sh
 
-docker ps -a | tee "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | tee "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Runtime' | grep 'kata-runtime' | tee "$REPORT"
+docker ps -a | tee -a "$REPORT"
+docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | tee -a "$REPORT"
+docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Runtime' | grep 'kata-runtime' | tee -a "$REPORT"
 
 docker stop 'kata-alpine'
 
-echo -e "\n### check container runtimes on host instance: " | tee "$REPORT"
-ls -lh /bin/runc | tee "$REPORT"
-ls -lh /bin/kata-runtime | tee "$REPORT"
+echo -e "\n### check container runtimes on host instance: " | tee -a "$REPORT"
+ls -lh /bin/runc | tee -a "$REPORT"
+ls -lh /bin/kata-runtime | tee -a "$REPORT"
 
 
 if [[ -z $(which microk8s) ]]
 then
-  echo -e "\n### install microk8s:" | tee "$REPORT"
+  echo -e "\n### install microk8s:" | tee -a "$REPORT"
   sudo snap install microk8s --classic --channel="$MK8S_VERSION"
-  sudo microk8s status --wait-ready | tee "$REPORT"
+  sudo microk8s status --wait-ready | tee -a "$REPORT"
 fi
 
-echo -e "\n### check container runtime on microk8s snap: " | tee "$REPORT"
-ls -lh /snap/microk8s/current/bin/runc | tee "$REPORT"
+echo -e "\n### check container runtime on microk8s snap: " | tee -a "$REPORT"
+ls -lh /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee "$REPORT" || true
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee -a "$REPORT"
 
-echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee "$REPORT"
+echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee -a "$REPORT"
 
-sudo microk8s kubectl get pods -n default | tee "$REPORT"
+sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 
+echo -e "\nwaiting for ready pods...\n" >> "$REPORT"
 sleep 120s
 # wait --for=condition=available : currently unstable with MicroK8s
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee "$REPORT"  || true
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee "$REPORT" || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee -a "$REPORT"  || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee -a "$REPORT" || true
 
-sudo microk8s kubectl get pods -n default | tee "$REPORT"
-sudo microk8s kubectl get services -n default | tee "$REPORT"
+sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
+sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
 
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 
-curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee "$REPORT"
+echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Kata Containers!'
 
 #source: https://knative.dev/docs/serving/autoscaling/autoscale-go/
 #curl "http://autoscale-go.default.1.2.3.4.xip.io?sleep=100&prime=10000&bloat=5"
-curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee "$REPORT"
+echo -e "\ncalling autoscale-go with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
 curl -s "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
 
 echo -e "\n### extend microk8s snap with kata-runtime:"
@@ -258,53 +261,53 @@ sudo unsquashfs "$MK8S_SNAP"
 sudo cp /bin/kata-runtime squashfs-root/bin/kata-runtime
 sudo mv squashfs-root/bin/runc squashfs-root/bin/runc.bak
 sudo ln -s squashfs-root/bin/kata-runtime squashfs-root/bin/runc
-sudo mksquashfs squashfs-root/ "$(basename $MK8S_SNAP)" -noappend -always-use-fragments
+sudo mksquashfs squashfs-root/ "$(basename $MK8S_SNAP)" -noappend -always-use-fragments | tee -a "$REPORT"
 cd
 ls -lh "microk8s-squash/$(basename $MK8S_SNAP)"
 
-echo -e "\n### re-install microk8s incl kata-runtime: " | tee "$REPORT"
+echo -e "\n### re-install microk8s incl kata-runtime: " | tee -a "$REPORT"
 sudo microk8s start
 sudo microk8s status --wait-ready
 sudo snap remove microk8s
-sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)" | tee "$REPORT"
+sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)" | tee -a "$REPORT"
 
 echo -e "\n### restart microk8s: "
 sudo microk8s start
-sudo microk8s status --wait-ready
+sudo microk8s status --wait-ready | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee "$REPORT" || true
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml" | tee -a "$REPORT"
 
-echo -e "\n### test microk8s + kata with helloworld-go & autoscale-go: " | tee "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee "$REPORT"
+echo -e "\n### test microk8s + kata with helloworld-go & autoscale-go: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee -a "$REPORT"
 
-sudo microk8s kubectl get pods -n default | tee "$REPORT"
+sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 
 sleep 120s
 # wait --for=condition=available : currently unstable with MicroK8s
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee "$REPORT"
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee "$REPORT"
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee -a $REPORT"
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee -a "$REPORT"
 
-sudo microk8s kubectl get pods -n default | tee "$REPORT"
-sudo microk8s kubectl get services -n default | tee "$REPORT"
+sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
+sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
 
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" >> null || true
 
-curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
 curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Kata Containers!'
 
 #source: https://knative.dev/docs/serving/autoscaling/autoscale-go/
 #curl "http://autoscale-go.default.1.2.3.4.xip.io?sleep=100&prime=10000&bloat=5"
-curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
 curl -s "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
 
-echo -e "\n### check proper symlink from microk8s runc:" | tee "$REPORT"
-ls -l /snap/microk8s/current/bin/runc | tee "$REPORT"
+echo -e "\n### check proper symlink from microk8s runc:" | tee -a "$REPORT"
+ls -l /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 [[ -L /snap/microk8s/current/bin/runc ]]
-ls -l /bin/kata-runtime | tee "$REPORT"
-ls -l /snap/microk8s/current/bin/kata-runtime | tee "$REPORT"
+ls -l /bin/kata-runtime | tee -a "$REPORT"
+ls -l /snap/microk8s/current/bin/kata-runtime | tee -a "$REPORT"
 cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
 
 echo -e "\n### prepare execution report:"
@@ -323,17 +326,15 @@ echo "docker version:" >> "$REPORT.tmp"
 echo "$(docker version)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
-echo "kata-runtime version: $(kata-runtime --version)" >> "$REPORT.tmp"
-echo "kata-runtime env:" >> "$REPORT.tmp"
-echo "$(kata-runtime kata-env)" >> "$REPORT.tmp"
+echo "kata-runtime version:" >> "$REPORT.tmp"
+kata-runtime --version >> "$REPORT.tmp"
+
 echo "kata-runtime check:" >> "$REPORT.tmp"
-echo "$(kata-runtime kata-check -n)" >> "$REPORT.tmp"
+kata-runtime kata-check -n >> "$REPORT.tmp"
 
 cat $REPORT >> "$REPORT.tmp"
 rm "$REPORT"
 mv "$REPORT.tmp" $REPORT
-
-echo '```' >> README.md
 
 echo "### execution report:" 
 cat $REPORT
