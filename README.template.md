@@ -73,7 +73,7 @@ Then, fork our repository and define the required [Github Secrets](https://docs.
 1. your GCP project id will be {{ secrets.GCP_PROJECT }}
 2. The private key of your service account in json format will be ${{ secrets.GCP_SA_KEY }} 
 
-To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button in the Action tab of your fork.
+To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button (the green one in the picture below) in the Action tab of your fork.
 
 <img src="img/microk8s-kata-launch-button.jpg" height="250">
 
