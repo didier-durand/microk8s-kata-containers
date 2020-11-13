@@ -3,8 +3,8 @@
 
 # Kata Containers on MicroK8s
 
-![workflow badge](https://github.com/didier-durand/microk8s-kata/workflows/Kata%20Containers%20%on%20MicroK8s/badge.svg)
-![workflow badge](https://github.com/didier-durand/microk8s-kata/workflows/MicroK8s%20Services%20Images/badge.svg)
+![workflow badge](https://github.com/didier-durand/microk8s-kata-containers/workflows/Kata%20Containers%20on%20MicroK8s/badge.svg)
+![workflow badge](https://github.com/didier-durand/microk8s-kata-containers/workflows/MicroK8s%20Services%20Images/badge.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 * [Goal](README.md#goal)
@@ -73,7 +73,9 @@ Then, fork our repository and define the required [Github Secrets](https://docs.
 1. your GCP project id will be {{ secrets.GCP_PROJECT }}
 2. The private key of your service account in json format will be ${{ secrets.GCP_SA_KEY }} 
 
-To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button in the Action tab of your fork.
+To easily use the workflow from Github, you can launch it with the [manual dispatch feature of Github](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) that you can see as a launch button (the green one in the picture below) in the Action tab of your fork.
+
+<img src="img/microk8s-kata-launch-button.jpg" height="250">
 
 The workflow will execute all the steps described above and terminate gracefully after all validation tests described are completed: it will then delete the GCE instance and the associated image triggering the nested virtualization.
 
@@ -86,7 +88,7 @@ Below are some relevant excerpts of the last execution log:
 
 
 ```
-execution date: Fri Nov 13 01:26:43 UTC 2020
+execution date: Fri Nov 13 06:03:40 UTC 2020
  
 microk8s snap version: microk8s          v1.19.3    x1     -                -                  classic
  
@@ -122,108 +124,352 @@ Server: Docker Engine - Community
   Version:          0.18.0
   GitCommit:        fec3683
  
-kata-runtime version: kata-runtime  : 1.12.0-rc0
+kata-runtime version:
+kata-runtime  : 1.12.0-rc0
    commit   : <<unknown>>
    OCI specs: 1.0.1-dev
-kata-runtime env:
-[Meta]
-  Version = "1.0.24"
-
-[Runtime]
-  Debug = false
-  Trace = false
-  DisableGuestSeccomp = true
-  DisableNewNetNs = false
-  SandboxCgroupOnly = false
-  Path = "/usr/bin/kata-runtime"
-  [Runtime.Version]
-    OCI = "1.0.1-dev"
-    [Runtime.Version.Version]
-      Semver = "1.12.0-rc0"
-      Major = 1
-      Minor = 12
-      Patch = 0
-      Commit = ""
-  [Runtime.Config]
-    Path = "/usr/share/defaults/kata-containers/configuration.toml"
-
-[Hypervisor]
-  MachineType = "pc"
-  Version = "QEMU emulator version 5.0.0\nCopyright (c) 2003-2020 Fabrice Bellard and the QEMU Project developers"
-  Path = "/usr/bin/qemu-vanilla-system-x86_64"
-  BlockDeviceDriver = "virtio-scsi"
-  EntropySource = "/dev/urandom"
-  SharedFS = "virtio-9p"
-  VirtioFSDaemon = "/usr/bin/virtiofsd"
-  Msize9p = 8192
-  MemorySlots = 10
-  PCIeRootPort = 0
-  HotplugVFIOOnRootBus = false
-  Debug = false
-  UseVSock = false
-
-[Image]
-  Path = "/usr/share/kata-containers/kata-containers-image_clearlinux_1.12.0-rc0_agent_5cfb8ec960.img"
-
-[Kernel]
-  Path = "/usr/share/kata-containers/vmlinuz-5.4.60.89-51.container"
-  Parameters = "systemd.unit=kata-containers.target systemd.mask=systemd-networkd.service systemd.mask=systemd-networkd.socket scsi_mod.scan=none"
-
-[Initrd]
-  Path = ""
-
-[Proxy]
-  Type = "kataProxy"
-  Path = "/usr/libexec/kata-containers/kata-proxy"
-  Debug = false
-  [Proxy.Version]
-    Semver = "1.12.0-rc0-adde733"
-    Major = 1
-    Minor = 12
-    Patch = 0
-    Commit = "<<unknown>>"
-
-[Shim]
-  Type = "kataShim"
-  Path = "/usr/libexec/kata-containers/kata-shim"
-  Debug = false
-  [Shim.Version]
-    Semver = "<<unknown>>"
-    Major = 0
-    Minor = 0
-    Patch = 0
-    Commit = "<<unknown>>"
-
-[Agent]
-  Type = "kata"
-  Debug = false
-  Trace = false
-  TraceMode = ""
-  TraceType = ""
-
-[Host]
-  Kernel = "5.4.0-1029-gcp"
-  Architecture = "amd64"
-  VMContainerCapable = true
-  SupportVSocks = true
-  [Host.Distro]
-    Name = "Ubuntu"
-    Version = "20.04"
-  [Host.CPU]
-    Vendor = "GenuineIntel"
-    Model = "Intel(R) Xeon(R) CPU @ 2.20GHz"
-
-[Netmon]
-  Path = "/usr/libexec/kata-containers/kata-netmon"
-  Debug = false
-  Enable = false
-  [Netmon.Version]
-    Semver = "1.12.0-rc0"
-    Major = 1
-    Minor = 12
-    Patch = 0
-    Commit = "<<unknown>>"
 kata-runtime check:
 System is capable of running Kata Containers
--rwxr-xr-x 1 root root 31560112 Nov 13 01:21 /snap/microk8s/current/bin/kata-runtime
+
+### test use of kata-runtime with alpine: 
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+e7f18560d7c5        alpine              "sh"                2 seconds ago       Up Less than a second                           kata-alpine
+dc0d1b00045f        busybox             "uname -a"          13 seconds ago      Exited (0) 10 seconds ago                       silly_mestorf
+[
+    {
+        "Id": "e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4",
+        "Created": "2020-11-13T05:53:30.62884417Z",
+        "Path": "sh",
+        "Args": [],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 8133,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2020-11-13T05:53:32.552790942Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:d6e46aa2470df1d32034c6707c8041158b652f38d2a9ae3d7ad7e7532d22ebe0",
+        "ResolvConfPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/hostname",
+        "HostsPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/hosts",
+        "LogPath": "/var/lib/docker/containers/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4/e7f18560d7c51c417f2bc956aaa5f840b84d23d2da553865268d551f92acdcf4-json.log",
+        "Name": "/kata-alpine",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "docker-default",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "Capabilities": null,
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "kata-runtime",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "KernelMemory": 0,
+            "KernelMemoryTCP": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/asound",
+                "/proc/acpi",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81-init/diff:/var/lib/docker/overlay2/c3ad96f122088853e76045aae68e34fa23417449bf91849a784e1f00e3d596b2/diff",
+                "MergedDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/merged",
+                "UpperDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/diff",
+                "WorkDir": "/var/lib/docker/overlay2/4e3fce728b938d330c55030ca86aa4428537a782d3481ff7dfd3b123c10f0b81/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "e7f18560d7c5",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": true,
+            "OpenStdin": true,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "sh"
+            ],
+            "Image": "alpine",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": null,
+            "OnBuild": null,
+            "Labels": {}
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "731f27ca76672309d56a5de78b3b422a224c1cbe323efe6902c326ca777b730b",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/731f27ca7667",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "3c1e8d482b98bbbdd568d06ecc18df128078c6e7a85e2b5f06a922f9812cb8de",
+            "Gateway": "172.17.0.1",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "172.17.0.2",
+            "IPPrefixLen": 16,
+            "IPv6Gateway": "",
+            "MacAddress": "02:42:ac:11:00:02",
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "64b739e484e04bc2370ed5eaffe62e5932cc033c5eae3c6f42f68b45944100fa",
+                    "EndpointID": "3c1e8d482b98bbbdd568d06ecc18df128078c6e7a85e2b5f06a922f9812cb8de",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "02:42:ac:11:00:02",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
+            "Runtime": "kata-runtime",
+
+### check container runtimes on host instance: 
+-rwxr-xr-x 1 root root 9.7M Sep  9 15:40 /bin/runc
+-rwxr-xr-x 1 root root 31M Oct 22 16:51 /bin/kata-runtime
+
+### install microk8s:
+microk8s is running
+high-availability: no
+  datastore master nodes: 127.0.0.1:19001
+  datastore standby nodes: none
+addons:
+  enabled:
+    ha-cluster           # Configure high availability on the current node
+  disabled:
+    ambassador           # Ambassador API Gateway and Ingress
+    cilium               # SDN, fast with full network policy
+    dashboard            # The Kubernetes dashboard
+    dns                  # CoreDNS
+    fluentd              # Elasticsearch-Fluentd-Kibana logging and monitoring
+    gpu                  # Automatic enablement of Nvidia CUDA
+    helm                 # Helm 2 - the package manager for Kubernetes
+    helm3                # Helm 3 - Kubernetes package manager
+    host-access          # Allow Pods connecting to Host services smoothly
+    ingress              # Ingress controller for external access
+    istio                # Core Istio service mesh services
+    jaeger               # Kubernetes Jaeger operator with its simple config
+    knative              # The Knative framework on Kubernetes.
+    kubeflow             # Kubeflow for easy ML deployments
+    linkerd              # Linkerd is a service mesh for Kubernetes and other frameworks
+    metallb              # Loadbalancer for your Kubernetes cluster
+    metrics-server       # K8s Metrics Server for API access to service metrics
+    multus               # Multus CNI enables attaching multiple network interfaces to pods
+    prometheus           # Prometheus operator for monitoring and logging
+    rbac                 # Role-Based Access Control for authorisation
+    registry             # Private image registry exposed on localhost:32000
+    storage              # Storage class; allocates storage from host directory
+
+### check container runtime on microk8s snap: 
+-rwxr-xr-x 1 root root 15M Nov  6 12:06 /snap/microk8s/current/bin/runc
+pod/nginx-test created
+
+### test microk8s with helloworld-go & autoscale-go: 
+service/helloworld-go created
+deployment.apps/helloworld-go-deployment created
+service/autoscale-go created
+deployment.apps/autoscale-go-deployment created
+NAME                                       READY   STATUS              RESTARTS   AGE
+nginx-test                                 0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-7gtsx   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-nhbg2   0/1     Pending             0          0s
+helloworld-go-deployment-86f5466d4-dbjcj   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-4jtch   0/1     Pending             0          0s
+
+waiting for ready pods...
+
+NAME                                       READY   STATUS    RESTARTS   AGE
+nginx-test                                 1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-7gtsx   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-dbjcj   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-4jtch   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-nhbg2   1/1     Running   0          2m
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m33s
+helloworld-go   NodePort    10.152.183.42    <none>        80:30839/TCP   2m1s
+autoscale-go    NodePort    10.152.183.206   <none>        80:31847/TCP   2m
+
+calling helloworld-go...
+
+Hello World: Kata Containers!
+
+calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory...
+
+Allocated 5 Mb of memory.
+The largest prime less than 10000 is 9973.
+Slept for 100.64 milliseconds.
+
+### re-install microk8s incl kata-runtime: 
+microk8s v1.19.3 installed
+microk8s is running
+high-availability: no
+  datastore master nodes: 127.0.0.1:19001
+  datastore standby nodes: none
+addons:
+  enabled:
+    ha-cluster           # Configure high availability on the current node
+  disabled:
+    ambassador           # Ambassador API Gateway and Ingress
+    cilium               # SDN, fast with full network policy
+    dashboard            # The Kubernetes dashboard
+    dns                  # CoreDNS
+    fluentd              # Elasticsearch-Fluentd-Kibana logging and monitoring
+    gpu                  # Automatic enablement of Nvidia CUDA
+    helm                 # Helm 2 - the package manager for Kubernetes
+    helm3                # Helm 3 - Kubernetes package manager
+    host-access          # Allow Pods connecting to Host services smoothly
+    ingress              # Ingress controller for external access
+    istio                # Core Istio service mesh services
+    jaeger               # Kubernetes Jaeger operator with its simple config
+    knative              # The Knative framework on Kubernetes.
+    kubeflow             # Kubeflow for easy ML deployments
+    linkerd              # Linkerd is a service mesh for Kubernetes and other frameworks
+    metallb              # Loadbalancer for your Kubernetes cluster
+    metrics-server       # K8s Metrics Server for API access to service metrics
+    multus               # Multus CNI enables attaching multiple network interfaces to pods
+    prometheus           # Prometheus operator for monitoring and logging
+    rbac                 # Role-Based Access Control for authorisation
+    registry             # Private image registry exposed on localhost:32000
+    storage              # Storage class; allocates storage from host directory
+pod/nginx-test created
+
+### test microk8s + kata with helloworld-go & autoscale-go: 
+service/helloworld-go created
+deployment.apps/helloworld-go-deployment created
+service/autoscale-go created
+deployment.apps/autoscale-go-deployment created
+NAME                                       READY   STATUS              RESTARTS   AGE
+nginx-test                                 0/1     ContainerCreating   0          2s
+helloworld-go-deployment-86f5466d4-jp8nm   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-bs4dh   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-llgjs   0/1     Pending             0          1s
+autoscale-go-deployment-5894658957-p7qhf   0/1     ContainerCreating   0          1s
+NAME                                       READY   STATUS    RESTARTS   AGE
+nginx-test                                 1/1     Running   0          2m2s
+helloworld-go-deployment-86f5466d4-bs4dh   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-jp8nm   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-p7qhf   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-llgjs   1/1     Running   0          2m1s
+NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m35s
+helloworld-go   NodePort    10.152.183.195   <none>        80:30144/TCP   2m2s
+autoscale-go    NodePort    10.152.183.163   <none>        80:30064/TCP   2m1s
+Hello World: Kata Containers!
+Allocated 5 Mb of memory.
+The largest prime less than 10000 is 9973.
+Slept for 100.55 milliseconds.
+
+### check proper symlink from microk8s runc:
+lrwxrwxrwx 1 root root 30 Nov 13 05:57 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Oct 22 16:51 /bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 13 05:57 /snap/microk8s/current/bin/kata-runtime
 ```
