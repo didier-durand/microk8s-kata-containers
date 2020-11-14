@@ -8,7 +8,7 @@ catch() {
     if [[ ! -z "$GITHUB_WORKFLOW" ]]
     then
       # delete cloud instance in case of failure when run scheduled on GitHub (to save costs...)
-      delete_gce_instance $KATA_INSTANCE $KATA_IMAGE || true
+      delete_gce_instance $KATA_INSTANCE $KATA_IMAGE ||ï¿½true
       true
     fi
   fi
@@ -71,14 +71,14 @@ delete_gce_instance()
 {
   local GCE_INSTANCE="$1"
   local GCE_IMAGE="$2"
-  echo -e "\n### delete gce instance:"
+  echo -e "\n### delete gce instance: $GCE_INSTANCE"
   gcloud compute instances delete \
       --zone $GCP_ZONE \
       --project=$GCP_PROJECT \
       --quiet \
       $GCE_INSTANCE   
   
-  echo -e "\n### delete gce image:"     
+  echo -e "\n### delete gce image: $GCE_IMAGE"     
   gcloud compute images delete \
       --project=$GCP_PROJECT \
       --quiet \
@@ -163,6 +163,8 @@ if [[ -z $(which kata-runtime) ]]
 then
   echo -e "\n### install kata containers:"
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
+  #sudo snap install kata-containers --classic
+  #sudo snap list | grep 'kata-containers'
 fi
 
 echo -e "\n### check install:"
