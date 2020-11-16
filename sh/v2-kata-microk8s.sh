@@ -176,10 +176,10 @@ echo -e "### /snap/kata-containers/current/usr/bin/kata-runtime kata-env:"
 echo -e "\n### /snap/kata-containers/current/usr/bin/kata-runtime version: $(/snap/kata-containers/current/usr/bin/kata-runtime --version)"
 
 #kata-check fail since Nov, 12th 2020 due to publication on version 1.12. See https://github.com/kata-containers/runtime/issues/3069
-echo -e "sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check: " || true
-sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check || true
-echo -e "/snap/kata-containers/current/usr/bin/kata-runtime kata-check:"
-/snap/kata-containers/current/usr/bin/kata-runtime kata-check || true
+echo -e "sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check -n: " || true
+sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check -n || true
+echo -e "/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n:"
+/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n || true
 
 /snap/kata-containers/current/usr/bin/kata-runtime kata-check -n | grep 'System is capable of running Kata Containers' || true
 
