@@ -1,0 +1,59 @@
+name: (V2) Kata Containers on MicroK8s
+
+on:  
+
+  #push:
+  
+  schedule:
+    - cron:  '0 1 * * MON,THU' 
+  
+  workflow_dispatch:
+    inputs:
+      workflowAction:
+        description: 'Action'
+        default: 'Run MicroK8s + Kata Containers'
+        required: true
+ 
+jobs:
+  v2-microk8s-kata-containers:
+  
+    runs-on: ubuntu-20.04
+
+    steps:
+      
+    - name: Check environment
+      run: |-
+        lsb_release -a
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+        
+    - name: Setup gcloud CLI
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        
+    - name: Get gcloud version & info
+      run: |-
+        echo '--- gcloud  components update ---'
+        gcloud components update
+        echo '--- gcloud version ---'
+        gcloud version
+    
+    - name: install MicroK8s + Kata Containers V2
+      env: 
+        KATA_GCE_DELETE: true
+        GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      run: |-
+        bash sh/v2-kata-microk8s.sh
+                         
+    #- name: commit back changed files
+    #  run: | 
+    #    git add -A
+    #    git config --local user.name "Github Action from $GITHUB_ACTOR"
+    #    git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+    #    git diff --quiet && git diff --staged --quiet || git commit -m "changes committed back by actor $GITHUB_ACTOR on $HELMALYZER_TIMESTAMP (workflow: $GITHUB_WORKFLOW - job: $GITHUB_JOB - sha: $GITHUB_SHA - ref: $GITHUB_REF)"
+    #    git config pull.rebase false
+    #    git diff --quiet && git diff --staged --quiet || git pull
+    #    git push https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
