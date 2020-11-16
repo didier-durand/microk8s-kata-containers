@@ -43,7 +43,7 @@ jobs:
     
     - name: install MicroK8s + Kata Containers V2
       env: 
-        KATA_GCE_DELETE: true
+        KATA_GCE_DELETE: false
         GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       run: |-
         bash sh/v2-kata-microk8s.sh
