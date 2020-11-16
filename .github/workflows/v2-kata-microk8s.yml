@@ -11,7 +11,7 @@ on:
     inputs:
       workflowAction:
         description: 'Action'
-        default: 'Run MicroK8s + Kata Containers'
+        default: 'Run MicroK8s + Kata Containers V2'
         required: true
  
 jobs:
