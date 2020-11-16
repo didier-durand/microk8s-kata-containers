@@ -163,6 +163,8 @@ if [[ -z $(which /snap/kata-containers/current/usr/bin/kata-runtime) ]]
 then
   echo -e "\n### install kata containers:"
   #bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
+  #https://github.com/kata-containers/kata-containers/blob/2.0-dev/utils/README.md
+  #bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/kata-containers/2.0-dev/utils/kata-manager.sh)"
   sudo snap install kata-containers --classic
   sudo snap list | grep 'kata-containers'
 fi
