@@ -23,7 +23,7 @@ This repository encompasses a fully scripted Github workflow (via [microk8s-kata
 
 The workflow tests the proper execution of sample containers with 'kata-runtime' after running them initially on standard 'runc' to validate global setup: beyond run of traditional helloworld-go, autoscale-go is called with parameters ensuring that thorough computations and resource allocation are properly executed by the replacing runtime.
 
-[MicroK8s](https://microk8s.io/) by Canonical was chosen on purpose for this project: its source code is extremely close to the upstream version of Kubernetes. Consequently, it allows to build a fully-featured production-grade Kubernetes cluster that can be run autonomously - on a single Limux instance - with very sensible default configuration allowing a quick setup, quite representative of a productive system. The source code of Micro8s is extremely close to the upstream version of Kubernetes.
+[MicroK8s](https://microk8s.io/) by Canonical was chosen on purpose for this project: its source code is extremely close to the upstream version of Kubernetes. Consequently, it allows to build a fully-featured production-grade Kubernetes cluster that can be run autonomously - on a single Limux instance - with very sensible default configuration allowing a quick setup, quite representative of a productive system.
 
 To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Docker, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
 
@@ -88,7 +88,7 @@ Below are some relevant excerpts of the last execution log:
 
 
 ```
-### execution date: Fri Nov 13 08:22:46 UTC 2020
+### execution date: Mon Nov 16 01:29:01 UTC 2020
  
 ### microk8s snap version:
 microk8s          v1.19.3    1791   1.19/stable      canonical*         classic
@@ -143,10 +143,10 @@ System is capable of running Kata Containers
 
 ### test use of kata-runtime with alpine: 
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
-acf13e70483f        alpine              "sh"                2 seconds ago       Up Less than a second                          kata-alpine
-2d8fdb4c6c27        busybox             "uname -a"          12 seconds ago      Exited (0) 9 seconds ago                       frosty_proskuriakova
+da2509cc1361        alpine              "sh"                2 seconds ago       Up Less than a second                          kata-alpine
+248ade4d979a        busybox             "uname -a"          11 seconds ago      Exited (0) 8 seconds ago                       upbeat_edison
         "Name": "/kata-alpine",
-        "Id": "acf13e70483f32450222b6aeaa8abdb79803f748c641c9a37a5306049b800c6a",
+        "Id": "da2509cc136193372bcae77c535695dccb3da86dfd3ec3c7dcf3775d684a6440",
             "Runtime": "kata-runtime",
 
 ### install microk8s:
@@ -193,24 +193,24 @@ deployment.apps/helloworld-go-deployment created
 service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
-nginx-test                                 0/1     ContainerCreating   0          3s
-helloworld-go-deployment-86f5466d4-jkd5x   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-57bw8   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-7x6r6   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-qdvpq   0/1     Pending             0          0s
+nginx-test                                 0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-dm67d   0/1     ContainerCreating   0          0s
+autoscale-go-deployment-5894658957-zrz4p   0/1     ContainerCreating   0          0s
+helloworld-go-deployment-86f5466d4-7ldcd   0/1     ContainerCreating   0          0s
+autoscale-go-deployment-5894658957-mq67w   0/1     ContainerCreating   0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
-nginx-test                                 1/1     Running   1          2m3s
-autoscale-go-deployment-5894658957-qdvpq   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-57bw8   1/1     Running   0          2m1s
-helloworld-go-deployment-86f5466d4-jkd5x   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-7x6r6   1/1     Running   0          2m
+nginx-test                                 1/1     Running   0          2m2s
+helloworld-go-deployment-86f5466d4-dm67d   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-zrz4p   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-7ldcd   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-mq67w   1/1     Running   0          2m1s
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m34s
-helloworld-go   NodePort    10.152.183.74    <none>        80:31353/TCP   2m2s
-autoscale-go    NodePort    10.152.183.107   <none>        80:30160/TCP   2m1s
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m33s
+helloworld-go   NodePort    10.152.183.131   <none>        80:31942/TCP   2m1s
+autoscale-go    NodePort    10.152.183.34    <none>        80:30066/TCP   2m1s
 
 calling helloworld-go...
 
@@ -220,7 +220,7 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.17 milliseconds.
+Slept for 100.50 milliseconds.
 
 ### re-install microk8s incl kata-runtime: 
 microk8s v1.19.3 installed
@@ -265,23 +265,23 @@ service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
 nginx-test                                 0/1     ContainerCreating   0          2s
-helloworld-go-deployment-86f5466d4-hk8fj   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-6h9j5   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-46c4k   0/1     ContainerCreating   0          0s
-autoscale-go-deployment-5894658957-c8lvf   0/1     ContainerCreating   0          0s
+helloworld-go-deployment-86f5466d4-7c4hl   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-gq8t9   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-vmk55   0/1     ContainerCreating   0          0s
+autoscale-go-deployment-5894658957-t964c   0/1     ContainerCreating   0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
 nginx-test                                 1/1     Running   0          2m2s
-helloworld-go-deployment-86f5466d4-6h9j5   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-46c4k   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-hk8fj   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-c8lvf   1/1     Running   0          2m
-NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m35s
-helloworld-go   NodePort    10.152.183.51    <none>        80:32513/TCP   2m1s
-autoscale-go    NodePort    10.152.183.108   <none>        80:30074/TCP   2m
+helloworld-go-deployment-86f5466d4-gq8t9   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-vmk55   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-t964c   1/1     Running   0          2m
+helloworld-go-deployment-86f5466d4-7c4hl   1/1     Running   0          2m1s
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.152.183.1    <none>        443/TCP        2m24s
+helloworld-go   NodePort    10.152.183.43   <none>        80:32163/TCP   2m1s
+autoscale-go    NodePort    10.152.183.14   <none>        80:30719/TCP   2m
 
 calling helloworld-go...
 
@@ -291,10 +291,10 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.61 milliseconds.
+Slept for 100.74 milliseconds.
 
 ### check proper symlink from microk8s runc:
-lrwxrwxrwx 1 root root 30 Nov 13 08:16 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
+lrwxrwxrwx 1 root root 30 Nov 16 01:23 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
 -rwxr-xr-x 1 root root 31560112 Oct 22 16:51 /bin/kata-runtime
--rwxr-xr-x 1 root root 31560112 Nov 13 08:16 /snap/microk8s/current/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 16 01:23 /snap/microk8s/current/bin/kata-runtime
 ```
