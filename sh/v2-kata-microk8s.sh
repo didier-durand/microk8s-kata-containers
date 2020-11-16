@@ -8,7 +8,7 @@ catch() {
     if [[ ! -z "$GITHUB_WORKFLOW" ]]
     then
       # delete cloud instance in case of failure when run scheduled on GitHub (to save costs...)
-      delete_gce_instance $KATA_INSTANCE $KATA_IMAGE || true
+      #delete_gce_instance $KATA_INSTANCE $KATA_IMAGE || true
       true
     fi
   fi
@@ -123,7 +123,7 @@ then
 
       create_gce_instance "$KATA_INSTANCE" "$KATA_IMAGE"
       
-      gcloud compute ssh $KATA_INSTANCE --command="sudo apt update -y && sudo apt upgrade -y && sudo apt autoremove  -y" --zone $GCP_ZONE --project=$GCP_PROJECT
+      gcloud compute ssh $KATA_INSTANCE --command="sudo apt update -y && (sudo apt upgrade -y || sudo apt upgrade -y) && sudo apt autoremove  -y" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command='(sudo groupadd docker || true) && sudo usermod -a -G docker ${USER}'  --zone $GCP_ZONE --project=$GCP_PROJECT
       #gcloud compute ssh $KATA_INSTANCE --command='sudo groupadd docker && sudo usermod -a -G docker ${USER} && sudo groupadd microk8s && sudo usermod -a -G microk8s ${USER}'  --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute scp $0  $KATA_INSTANCE:$(basename $0) --zone $GCP_ZONE --project=$GCP_PROJECT
