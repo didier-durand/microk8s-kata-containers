@@ -163,7 +163,7 @@ if [[ -z $(which kata-runtime) ]]
 then
   echo -e "\n### install kata containers:"
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
-  #sudo snap install kata-containers --classic
+  #sudo snap install --edge --classic kata-containers
   #sudo snap list | grep 'kata-containers'
 fi
 

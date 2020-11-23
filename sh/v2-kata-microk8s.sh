@@ -165,57 +165,54 @@ then
   #bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
   #https://github.com/kata-containers/kata-containers/blob/2.0-dev/utils/README.md
   #bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/kata-containers/2.0-dev/utils/kata-manager.sh)"
-  sudo snap install kata-containers --classic
+  sudo snap install --edge --classic kata-containers
   sudo snap list | grep 'kata-containers'
 fi
 
 echo -e "\n### check install:"
-echo -e "### sudo /snap/kata-containers/current/usr/bin//snap/kata-containers/current/usr/bin/kata-runtime kata-env:"
-sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-env || true
-echo -e "### /snap/kata-containers/current/usr/bin/kata-runtime kata-env:"
-/snap/kata-containers/current/usr/bin/kata-runtime kata-env || true
 
-echo -e "\n### /snap/kata-containers/current/usr/bin/kata-runtime version: $(/snap/kata-containers/current/usr/bin/kata-runtime --version)"
+echo -e "\n### kata-runtime version: $(kata-containers.runtime --version)"
+
+echo -e "### kata-runtime kata-env:"
+kata-containers.runtime kata-env || true
 
 #kata-check fail since Nov, 12th 2020 due to publication on version 1.12. See https://github.com/kata-containers/runtime/issues/3069
-echo -e "sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check -n: " || true
-sudo /snap/kata-containers/current/usr/bin/kata-runtime kata-check -n || true
-echo -e "/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n:"
-/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n || true
+echo -e "sudo kata-runtime kata-check -n: " || true
+kata-containers.runtime kata-check -n || true
 
-/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n | grep 'System is capable of running Kata Containers' || true
+kata-containers.runtime kata-check -n | grep 'System is capable of running Kata Containers' || true
 
-if [[ -z $(which docker) ]]
-then
-  echo -e "\n### install docker: "
-  sudo snap install docker -y
-fi
+#if [[ -z $(which docker) ]]
+#then
+#  echo -e "\n### install docker: "
+#  sudo snap install docker -y
+#fi
 
-echo -e "\n### docker version: "
-docker version
+#echo -e "\n### docker version: "
+#docker version
 
-echo -e "\n### check existing container runtimes on Ubuntu host:" | tee -a "$REPORT"
-ls -lh /bin/runc | tee -a "$REPORT"
-ls -lh /snap/kata-containers/current/usr/bin/kata-runtime | tee -a "$REPORT"
+#echo -e "\n### check existing container runtimes on Ubuntu host:" | tee -a "$REPORT"
+#ls -lh /bin/runc | tee -a "$REPORT"
+#ls -lh /snap/kata-containers/current/usr/bin/kata-runtime | tee -a "$REPORT"
 
-echo -e "\n### check available docker runtimes: " | tee -a "$REPORT"
-docker info
-docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc' | tee -a "$REPORT"
+#echo -e "\n### check available docker runtimes: " | tee -a "$REPORT"
+#docker info
+#docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc' | tee -a "$REPORT"
 
-echo -e "\n### test use of kata-runtime with alpine: " | tee -a "$REPORT"
+#echo -e "\n### test use of kata-runtime with alpine: " | tee -a "$REPORT"
 
-docker run --rm --runtime='kata-runtime' alpine ls -l | grep 'etc' | grep 'root'
-docker run --rm --runtime='kata-runtime' alpine cat /etc/hosts | grep 'localhost'
+#docker run --rm --runtime='kata-runtime' alpine ls -l | grep 'etc' | grep 'root'
+#docker run --rm --runtime='kata-runtime' alpine cat /etc/hosts | grep 'localhost'
 
-docker run -itd --rm --runtime='kata-runtime' --name='kata-alpine' alpine sh
+#docker run -itd --rm --runtime='kata-runtime' --name='kata-alpine' alpine sh
 
-docker ps -a | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}')
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Name' | grep 'kata-alpine' | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Id' | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Runtime' | grep 'kata-runtime' | tee -a "$REPORT"
+##docker ps -a | tee -a "$REPORT"
+#docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}')
+#docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Name' | grep 'kata-alpine' | tee -a "$REPORT"
+#docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Id' | tee -a "$REPORT"
+#docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Runtime' | grep 'kata-runtime' | tee -a "$REPORT"
 
-docker stop 'kata-alpine'
+#docker stop 'kata-alpine'
 
 if [[ -z $(which microk8s) ]]
 then
@@ -290,6 +287,7 @@ sudo microk8s status --wait-ready
 sudo snap remove microk8s
 sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)" | tee -a "$REPORT"
 
+set -x
 echo -e "\n### restart microk8s: "
 sudo microk8s start
 sudo microk8s status --wait-ready | tee -a "$REPORT"
@@ -356,11 +354,11 @@ echo "$(docker version)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "### kata-runtime version:" >> "$REPORT.tmp"
-/snap/kata-containers/current/usr/bin/kata-runtime --version >> "$REPORT.tmp"
+kata-containers.runtime --version >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "### kata-runtime check:" >> "$REPORT.tmp"
-/snap/kata-containers/current/usr/bin/kata-runtime kata-check -n >> "$REPORT.tmp"
+kata-containers.runtime kata-check -n >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 cat $REPORT >> "$REPORT.tmp"
