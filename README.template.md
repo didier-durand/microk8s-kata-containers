@@ -66,7 +66,7 @@ The major steps in this workflow are:
 ## How to Fork & Run
 
 To start with, you need a Google Cloud account including a project where the GCE APIs have been enabled. Obtain the id of your project from 
-GCP dashboard. Additionally, you need to create in this project a service account (SA) and give it proper GKE credentials: right to create, administer and delete GCE images & instances (if your cannot  make the SA a "Project Owner" to simplify the security aspects...). Save the private key of the SA in json format.
+GCP dashboard. Additionally, you need to create in this project a service account (SA) and give it proper GCE credentials: right to create, administer and delete GCE images & instances (if your cannot  make the SA a "Project Owner" to simplify the security aspects...). Save the private key of the SA in json format.
 
 Then, fork our repository and define the required [Github Secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) in your fork: 
 
