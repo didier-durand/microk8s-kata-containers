@@ -182,22 +182,22 @@ kata-containers.runtime kata-check -n || true
 
 kata-containers.runtime kata-check -n | grep 'System is capable of running Kata Containers' || true
 
-#if [[ -z $(which docker) ]]
-#then
-#  echo -e "\n### install docker: "
-#  sudo snap install docker -y
-#fi
+if [[ -z $(which podman) ]]
+then
+  echo -e "\n### install podman: "
+  sudo snap install podman --edge
+fi
 
-#echo -e "\n### docker version: "
-#docker version
+echo -e "\n### podman version: "
+podman --version
 
-#echo -e "\n### check existing container runtimes on Ubuntu host:" | tee -a "$REPORT"
-#ls -lh /bin/runc | tee -a "$REPORT"
-#ls -lh /snap/kata-containers/current/usr/bin/kata-runtime | tee -a "$REPORT"
+echo -e "\n### check existing container runtimes on Ubuntu host:" | tee -a "$REPORT"
+ls -lh /bin/runc | tee -a "$REPORT"
+ls -lh /snap/kata-containers/current/usr/bin/kata-runtime | tee -a "$REPORT"
 
-#echo -e "\n### check available docker runtimes: " | tee -a "$REPORT"
-#docker info
-#docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc' | tee -a "$REPORT"
+echo -e "\n### check available docker runtimes: " | tee -a "$REPORT"
+podman info
+docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc' | tee -a "$REPORT"
 
 #echo -e "\n### test use of kata-runtime with alpine: " | tee -a "$REPORT"
 
@@ -217,7 +217,7 @@ kata-containers.runtime kata-check -n | grep 'System is capable of running Kata 
 if [[ -z $(which microk8s) ]]
 then
   echo -e "\n### install microk8s:" | tee -a "$REPORT"
-  sudo snap install microk8s --classic --channel="$MK8S_VERSION"
+  sudo snap install 'microk8s' --classic --channel='1.19/stable'
   SNAP_VERSION=$(sudo snap list | grep 'microk8s')
   sudo microk8s status --wait-ready | tee -a "$REPORT"
 fi
