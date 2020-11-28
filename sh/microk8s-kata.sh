@@ -1,10 +1,12 @@
 #!/bin/bash
 
+#https://developers.redhat.com/blog/2019/02/21/podman-and-buildah-for-docker-users/
+
 set -e
 trap 'catch $? $LINENO' EXIT
 catch() {
   if [ "$1" != "0" ]; then
-    echo "Error $1 occurred on $2"
+    echo "Error $1 occurred on line $2"
     if [[ ! -z "$GITHUB_WORKFLOW" ]]
     then
       # delete cloud instance in case of failure when run scheduled on GitHub (to save costs...)
@@ -30,9 +32,12 @@ if [[ -z ${GCP_ZONE+x} ]]                                    ; then GCP_ZONE='us
 
 if [[ -z ${KATA_GCE_CREATE+x} ]]                             ; then KATA_GCE_CREATE='true'                     ; fi ; echo "kata gce create: $KATA_GCE_CREATE"
 if [[ -z ${KATA_GCE_DELETE+x} ]]                             ; then KATA_GCE_DELETE='false'                    ; fi ; echo "kata gce delete: $KATA_GCE_DELETE"
+
 if [[ -z ${KATA_INSTALL+x} ]]                                ; then KATA_INSTALL='true'                        ; fi ; echo "kata install: $KATA_INSTALL"
-if [[ -z ${KATA_HOST+x} ]]                                   ; then KATA_HOST='ubuntu-2004-lts'                ; fi ; echo "kata host os: $KATA_HOST"
+if [[ -z ${KATA_IMAGE_FAMILY+x} ]]                           ; then KATA_IMAGE_FAMILY='ubuntu-2004-lts'        ; fi ; echo "kata image family: $KATA_IMAGE_FAMILY"
 if [[ -z ${KATA_INSTANCE+x} ]]                               ; then KATA_INSTANCE='microk8s-kata'              ; fi ; echo "kata host instance: $KATA_INSTANCE"
+
+#if [[ -z ${KATA_VERSION+x} ]]                               ; then export KATA_VERSION='2.x'                  ; fi ; echo "mk8s version: $KATA_VERSION"
 
 if [[ -z ${MK8S_VERSION+x} ]]                                ; then export MK8S_VERSION='1.19'                 ; fi ; echo "mk8s version: $MK8S_VERSION"
 
@@ -85,7 +90,7 @@ delete_gce_instance()
       $GCE_IMAGE
 }
 
-KATA_IMAGE="$KATA_HOST-kata"
+KATA_IMAGE="$KATA_IMAGE_FAMILY-kata"
 
 if [[ $KATA_GCE_CREATE == 'true' ]]
 then
@@ -106,13 +111,13 @@ then
               $KATA_IMAGE
         fi 
 
-        echo -e "\n### image: $(gcloud compute images list | grep $KATA_HOST)"
-        IMAGE_PROJECT=$(gcloud compute images list | grep $KATA_HOST | awk '{ print $2 }')
+        echo -e "\n### image: $(gcloud compute images list | grep $KATA_IMAGE_FAMILY)"
+        IMAGE_PROJECT=$(gcloud compute images list | grep $KATA_IMAGE_FAMILY | awk '{ print $2 }')
 
         echo -e "\n### create image: $KATA_IMAGE"
         gcloud compute images create \
             --source-image-project $IMAGE_PROJECT \
-            --source-image-family $KATA_HOST \
+            --source-image-family $KATA_IMAGE_FAMILY \
             --licenses=https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx \
             --project=$GCP_PROJECT \
             $KATA_IMAGE
@@ -124,8 +129,6 @@ then
       create_gce_instance "$KATA_INSTANCE" "$KATA_IMAGE"
       
       gcloud compute ssh $KATA_INSTANCE --command='sudo rm -rf /var/lib/apt/lists/* && sudo apt update -y && (sudo apt upgrade -y && sudo apt upgrade -y) && sudo apt autoremove  -y' --zone $GCP_ZONE --project=$GCP_PROJECT
-      gcloud compute ssh $KATA_INSTANCE --command='(sudo groupadd docker || true) && sudo usermod -a -G docker ${USER}'  --zone $GCP_ZONE --project=$GCP_PROJECT
-      #gcloud compute ssh $KATA_INSTANCE --command='sudo groupadd docker && sudo usermod -a -G docker ${USER} && sudo groupadd microk8s && sudo usermod -a -G microk8s ${USER}'  --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute scp $0  $KATA_INSTANCE:$(basename $0) --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="sudo chmod ugo+x ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="bash ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
@@ -159,54 +162,119 @@ echo -e "\n### check gce instance:"
 lscpu
 lscpu | grep 'GenuineIntel'
 
-if [[ -z $(which kata-runtime) ]]
+if [[ -z $(which jq) ]]
 then
-  echo -e "\n### install kata containers:"
-  bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
-  #sudo snap install --edge --classic kata-containers
-  #sudo snap list | grep 'kata-containers'
+  echo -e "\n### install jq:"
+  sudo snap install jq
+  snap list | grep 'jq'
 fi
 
-echo -e "\n### check install:"
-kata-runtime kata-env
+# due to https://github.com/containers/podman/pull/7126 and https://github.com/containers/podman/pull/7077
+# some podman commands fail if --runtime= is not specified. So, we currently add it to all commands until 7126 gets published in upcoming official release
+if [[ -z "$KATA_VERSION" ]]
+then
+  KATA_PATH='/bin/kata-runtime'
+else
+  KATA_PATH='/snap/kata-containers/current/usr/bin/kata-runtime'
+fi
 
-echo -e "\n### kata-runtime version: $(kata-runtime --version)"
+if [[ ! -f $KATA_PATH ]]
+then
+  if [[ -z "$KATA_VERSION" ]]
+  then
+    echo -e "\n### install kata containers: v1.x"
+    bash -c "$(curl -fsSL https://raw.githubusercontent.com/kata-containers/tests/master/cmd/kata-manager/kata-manager.sh) install-docker-system"
+  else
+    echo -e "\n### install kata containers: v2.x"
+    sudo snap install --edge --classic kata-containers
+    sudo snap list | grep 'kata-containers' | grep ' 2.'
+  fi
+fi
+
+echo -e "\n### kata-runtime env:"
+$KATA_PATH kata-env
+
+echo -e "\n### kata-runtime version: $($KATA_PATH --version)"
 
 #kata-check fail since Nov, 12th 20202 due to publication on version 1.12. See https://github.com/kata-containers/runtime/issues/3069
-kata-runtime kata-check -n || true
-kata-runtime kata-check -n | grep 'System is capable of running Kata Containers' || true
+$KATA_PATH kata-check -n || true
+$KATA_PATH kata-check -n | grep 'System is capable of running Kata Containers' || true
 
-if [[ -z $(which docker) ]]
+if [[ -z $(which podman) ]]
 then
-  echo -e "\n### install docker: "
-  sudo apt install docker -y
+  echo -e "\n### install podman: "
+  source /etc/os-release
+  sudo sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
+  wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_${VERSION_ID}/Release.key -O- | sudo apt-key add -
+  sudo apt update -y && sudo apt upgrade -y && sudo apt install -y podman
 fi
 
-echo -e "\n### docker version: "
-docker version
+KATA_PARAMS='
+#microk8s-kata
+kata = [
+            "/usr/bin/kata-runtime",
+            "/usr/sbin/kata-runtime",
+            "/usr/local/bin/kata-runtime",
+            "/usr/local/sbin/kata-runtime",
+            "/sbin/kata-runtime",
+            "/bin/kata-runtime",
+            "/usr/bin/kata-qemu",
+            "/usr/bin/kata-fc",
+]'
+#echo "kata params: $KATA_PARAMS"
+
+#cat /etc/containers/containers.conf | grep '#microk8s-kata' || echo "$KATA_PARAMS" | sudo tee -a /etc/containers/containers.conf
+#cat /etc/containers/containers.conf
+
+
+echo -e "\n### podman version: "
+podman version
 
 echo -e "\n### check existing container runtimes on Ubuntu host:" | tee -a "$REPORT"
 ls -lh /bin/runc | tee -a "$REPORT"
-ls -lh /bin/kata-runtime | tee -a "$REPORT"
+ls -lh "$KATA_PATH" | tee -a "$REPORT"
 
-echo -e "\n### check available docker runtimes: " | tee -a "$REPORT"
-docker info
-docker info | grep 'Runtimes' | grep 'kata-runtime' | grep 'runc' | tee -a "$REPORT"
+echo -e "\n### check active OCI runtime: " | tee -a "$REPORT"
+podman info --runtime="$KATA_PATH"
+podman info --runtime="$KATA_PATH" --format=json | jq '.host.ociRuntime.name' | grep 'runc' | tee -a "$REPORT"
 
 echo -e "\n### test use of kata-runtime with alpine: " | tee -a "$REPORT"
 
-docker run --rm --runtime='kata-runtime' alpine ls -l | grep 'etc' | grep 'root'
-docker run --rm --runtime='kata-runtime' alpine cat /etc/hosts | grep 'localhost'
+echo -e "\n### podman runc tests: runc"
+podman run --rm --runtime='/bin/runc' alpine ls -l | grep 'etc' | grep 'root'
+podman run --rm --runtime='/bin/runc' alpine cat /etc/hosts | grep 'localhost'
 
-docker run -itd --rm --runtime='kata-runtime' --name='kata-alpine' alpine sh
+echo -e "\n### podman tests: kata-runtime"
+ls -l "$KATA_PATH"
+#to debug issue with podman on v2.0
+if [[ -n "$KATA_VERSION" ]]
+then
+  set -x
+fi
+sudo -E podman run --rm --runtime="$KATA_PATH" alpine grep -m 1 kataShared /etc/mtab && echo 'kata-runtime successfully detected!'
+sudo -E podman run --rm --runtime="$KATA_PATH" alpine ls -l | grep 'etc' | grep 'root'
+sudo -E podman run --rm --runtime="$KATA_PATH" alpine cat /etc/hosts | grep 'localhost'
 
-docker ps -a | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}')
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Name' | grep 'kata-alpine' | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Id' | tee -a "$REPORT"
-docker inspect $(sudo docker ps -a | grep 'kata-alpine' | awk '{print $1}') | grep 'Runtime' | grep 'kata-runtime' | tee -a "$REPORT"
+# stop and rm old container(s) if any (for script idempotence)
+sudo podman stop 'kata-alpine' --runtime="$KATA_PATH" > /dev/null 2>&1 || true
+sudo podman rm --force --runtime="$KATA_PATH" 'kata-alpine' > /dev/null 2>&1 || true
 
-docker stop 'kata-alpine'
+KATA_ALPINE_ID=$(sudo -E podman run -itd --rm --runtime="$KATA_PATH" --name='kata-alpine' alpine sh)
+echo -e "\n### started kata-alpine container:  $KATA_ALPINE_ID"
+
+echo -e "\n### list running containers: "
+sudo podman ps -a --runtime="$KATA_PATH" | tee -a "$REPORT"
+sudo podman ps -a --runtime="$KATA_PATH" | grep 'kata-alpine' > /dev/null
+
+echo -e "\n### inspect kata-alpine container: "
+sudo podman inspect --runtime="$KATA_PATH" "$KATA_ALPINE_ID"
+sudo podman inspect --runtime="$KATA_PATH" "$KATA_ALPINE_ID" | grep 'Name' | grep 'kata-alpine' | tee -a "$REPORT"
+sudo podman inspect --runtime="$KATA_PATH" "$KATA_ALPINE_ID" | grep 'Id' | tee -a "$REPORT"
+sudo podman inspect --runtime="$KATA_PATH" "$KATA_ALPINE_ID" | grep 'OCIRuntime' | grep 'kata-runtime' | tee -a "$REPORT"
+
+KATA_ALPINE_ID2=$(sudo sudo podman stop 'kata-alpine' --runtime="$KATA_PATH")
+echo -e "\n### stopped kata-alpine: $KATA_ALPINE_ID2 "
+[[ "$KATA_ALPINE_ID2" == "$KATA_ALPINE_ID" ]]
 
 if [[ -z $(which microk8s) ]]
 then
