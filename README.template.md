@@ -49,7 +49,7 @@ Various specific points have to be part of this workflow:
 
 2. The underlying hardware must minimally be of the Intel's [Broadwell architecture generation](https://en.wikipedia.org/wiki/Broadwell_(microarchitecture)) to provide the VT-x instructions. This is guaranteed by adding *"--min-cpu-platform 'Intel Broadwell'"* to the command *"gcloud compute instances create"*. See [microk8s-kata.sh](sh/microk8s-kata.sh) for details.
 
-3. [Podman CLI](https://podman.io/) is used instead of Docker CLI because Docker is not compatible with Kata Containers runtime 2.0. As [this article](https://developers.redhat.com/blog/2019/02/21/podman-and-buildah-for-docker-users/) explains it, the transition from Docker to Podman is very easy: command syntax and resuls are extremely close and even identical in most cases.
+3. [Podman CLI](https://podman.io/) is used instead of Docker CLI because Docker is not compatible with Kata Containers runtime 2.0. As [this article](https://developers.redhat.com/blog/2019/02/21/podman-and-buildah-for-docker-users/) explains it, the transition from Docker to Podman is very easy: command syntax and results are extremely close and even identical in most cases.
 
 ## Workflow Steps
 
