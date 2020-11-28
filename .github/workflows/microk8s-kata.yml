@@ -4,8 +4,8 @@ on:
 
   #push:
   
-  #schedule:
-  #  - cron:  '0 1 * * MON,THU' 
+  schedule:
+    - cron:  '0 1 * * MON,THU' 
   
   workflow_dispatch:
     inputs:
