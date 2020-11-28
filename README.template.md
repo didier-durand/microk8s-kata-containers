@@ -1,5 +1,5 @@
 
-<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"><img src="img/podman-logo.png" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
+<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"> <img src="img/podman-logo.jpg" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
 
 # Kata Containers on MicroK8s
 
