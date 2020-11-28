@@ -1,5 +1,5 @@
 
-<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
+<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"><img src="img/oci-logo.png" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
 
 # Kata Containers on MicroK8s
 
@@ -25,7 +25,7 @@ The workflow tests the proper execution of sample containers with 'kata-runtime'
 
 [MicroK8s](https://microk8s.io/) by Canonical was chosen on purpose for this project: its source code is extremely close to the upstream version of Kubernetes. Consequently, it allows to build a fully-featured production-grade Kubernetes cluster that can be run autonomously - on a single Limux instance - with very sensible default configuration allowing a quick setup, quite representative of a productive system.
 
-To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Docker, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
+To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Podman, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
 
 **Forking and re-using on your own is strongly encouraged!** All comments for improvements and extensions will be welcome. Finally, if you like this repo, please give a Github star so that it gets more easily found by others.
 
@@ -43,11 +43,13 @@ As you would expect, this further level of isolation through additional virtuali
 
 ## Specific Setup
 
-Two specific points have to be part of this workflow:
+Various specific points have to be part of this workflow:
 
 1. [Katas on GCE](https://github.com/kata-containers/documentation/blob/master/install/gce-installation-guide.md) implies use of [nested virtualization](https://en.wikipedia.org/wiki/Virtualization#Nested_virtualization): this requires to create a [specific GCE image](https://cloud.google.com/compute/docs/instances/enable-nested-virtualization-vm-instances) to activate the [Intel VT-x instruction set](https://en.wikipedia.org/wiki/X86_virtualization#Intel_virtualization_(VT-x)). This is obtained by the addition of a specific option *"--licenses="* to the command *"gcloud compute images create"*. See [microk8s-kata.sh](sh/microk8s-kata.sh) for details.
 
 2. The underlying hardware must minimally be of the Intel's [Broadwell architecture generation](https://en.wikipedia.org/wiki/Broadwell_(microarchitecture)) to provide the VT-x instructions. This is guaranteed by adding *"--min-cpu-platform 'Intel Broadwell'"* to the command *"gcloud compute instances create"*. See [microk8s-kata.sh](sh/microk8s-kata.sh) for details.
+
+3. [Podman CLI](https://podman.io/) is used instead of Docker CLI because Docker is not compatible with Kata Containers runtime 2.0. As this article explains it, the transition from Docker to Podman is very easy: command syntax and resuls are extremely close and even identical in most cases.
 
 ## Workflow Steps
 
@@ -56,8 +58,8 @@ The major steps in this workflow are:
 1. Check that GCE instance is proper ('GenuineIntel') - according to the above requirement for Broadwell - via lscpu after it has been created.
 2. Install Kata Containers runtime directly from the Github repository of the project.
 3. Check that this added runtime can run on the instance: command *"kata-runtime kata-check"* MUST produce output *"System is capable of running Kata Containers"*
-4. Install Docker and check via *"docker info"* that it sees both its standard runtime *"runc"* and the newly added *"kata-runtime"*
-5. Run the latest version of [Alpine Linux](https://en.wikipedia.org/wiki/Alpine_Linux) image with selection of kata-runtime (*"--runtime='kata-runtime"*) and verify through *"docker info"* that the running Alpine is effectively using kata-runtime.
+4. Install Podman and check via *"podman info"* that it sees both its standard runtime *"runc"* and the newly added *"kata-runtime"*
+5. Run the latest version of [Alpine Linux](https://en.wikipedia.org/wiki/Alpine_Linux) image with selection of kata-runtime (*"--runtime='kata-runtime"*) and verify through *"podman inspect"* that the running Alpine is effectively using kata-runtime.
 6. Install MicroK8s via snap and check that it works properly via the deployment of [helloworld-go.yml](kubernetes/helloworld-go.yml) and [autoscale-go.yml](kubernetes/autoscale-go.yml) service manifests, built from from GoLang source code in [src/go directory](src/go). Stop MicroK8s when validation is successful.
 7. Open the MicroK8s .snap file to add kata-runtime and repackage a new version (now unsigned) of the .snap file. Please, note use of *"unsquashfs"* and *"mksquashfs"* to achieve this refurbishing since the [snap archive format](https://en.wikipedia.org/wiki/Snap_(package_manager)) is based on read-only and compressed [SquashFS](https://en.wikipedia.org/wiki/SquashFS) Linux file system.
 8. Remove old MicroK8s installation and re-install a fresh instance based with newly created snap version: *"--dangerous"* option is now required since the tweaked .snap is no longer signed by its official provider, Canonical.
