@@ -1,5 +1,5 @@
 
-<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
+<img src="img/kata-logo.png" height="125"><img src="img/microk8s-logo.png" height="125"> <img src="img/podman-logo.jpg" height="125"><img src="img/oci-logo.png" height="125"><img src="img/containerd-logo.png" height="125">
 
 # Kata Containers on MicroK8s
 
@@ -25,7 +25,7 @@ The workflow tests the proper execution of sample containers with 'kata-runtime'
 
 [MicroK8s](https://microk8s.io/) by Canonical was chosen on purpose for this project: its source code is extremely close to the upstream version of Kubernetes. Consequently, it allows to build a fully-featured production-grade Kubernetes cluster that can be run autonomously - on a single Limux instance - with very sensible default configuration allowing a quick setup, quite representative of a productive system.
 
-To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Docker, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
+To automatically confirm the validity of this workflow overtime when new versions of the various components (Kata Containers, MicroK8s, Podman, Ubuntu, etc.) get published, cron schedules it on a recurring basis: execution logs can be seen in [Actions tab](https://github.com/didier-durand/microk8s-kata-containers/actions). Excerpts of last execution are gathered [further down in this page](README.md#execution-report).
 
 **Forking and re-using on your own is strongly encouraged!** All comments for improvements and extensions will be welcome. Finally, if you like this repo, please give a Github star so that it gets more easily found by others.
 
@@ -43,11 +43,13 @@ As you would expect, this further level of isolation through additional virtuali
 
 ## Specific Setup
 
-Two specific points have to be part of this workflow:
+Various specific points have to be part of this workflow:
 
 1. [Katas on GCE](https://github.com/kata-containers/documentation/blob/master/install/gce-installation-guide.md) implies use of [nested virtualization](https://en.wikipedia.org/wiki/Virtualization#Nested_virtualization): this requires to create a [specific GCE image](https://cloud.google.com/compute/docs/instances/enable-nested-virtualization-vm-instances) to activate the [Intel VT-x instruction set](https://en.wikipedia.org/wiki/X86_virtualization#Intel_virtualization_(VT-x)). This is obtained by the addition of a specific option *"--licenses="* to the command *"gcloud compute images create"*. See [microk8s-kata.sh](sh/microk8s-kata.sh) for details.
 
 2. The underlying hardware must minimally be of the Intel's [Broadwell architecture generation](https://en.wikipedia.org/wiki/Broadwell_(microarchitecture)) to provide the VT-x instructions. This is guaranteed by adding *"--min-cpu-platform 'Intel Broadwell'"* to the command *"gcloud compute instances create"*. See [microk8s-kata.sh](sh/microk8s-kata.sh) for details.
+
+3. [Podman CLI](https://podman.io/) is used instead of Docker CLI because Docker is not compatible with Kata Containers runtime 2.0. As [this article](https://developers.redhat.com/blog/2019/02/21/podman-and-buildah-for-docker-users/) explains it, the transition from Docker to Podman is very easy: command syntax and results are extremely close and even identical in most cases.
 
 ## Workflow Steps
 
@@ -56,8 +58,8 @@ The major steps in this workflow are:
 1. Check that GCE instance is proper ('GenuineIntel') - according to the above requirement for Broadwell - via lscpu after it has been created.
 2. Install Kata Containers runtime directly from the Github repository of the project.
 3. Check that this added runtime can run on the instance: command *"kata-runtime kata-check"* MUST produce output *"System is capable of running Kata Containers"*
-4. Install Docker and check via *"docker info"* that it sees both its standard runtime *"runc"* and the newly added *"kata-runtime"*
-5. Run the latest version of [Alpine Linux](https://en.wikipedia.org/wiki/Alpine_Linux) image with selection of kata-runtime (*"--runtime='kata-runtime"*) and verify through *"docker info"* that the running Alpine is effectively using kata-runtime.
+4. Install Podman and check via *"podman info"* that it sees both its standard runtime *"runc"* and the newly added *"kata-runtime"*
+5. Run the latest version of [Alpine Linux](https://en.wikipedia.org/wiki/Alpine_Linux) image with selection of kata-runtime (*"--runtime='kata-runtime"*) and verify through *"podman inspect"* that the running Alpine is effectively using kata-runtime.
 6. Install MicroK8s via snap and check that it works properly via the deployment of [helloworld-go.yml](kubernetes/helloworld-go.yml) and [autoscale-go.yml](kubernetes/autoscale-go.yml) service manifests, built from from GoLang source code in [src/go directory](src/go). Stop MicroK8s when validation is successful.
 7. Open the MicroK8s .snap file to add kata-runtime and repackage a new version (now unsigned) of the .snap file. Please, note use of *"unsquashfs"* and *"mksquashfs"* to achieve this refurbishing since the [snap archive format](https://en.wikipedia.org/wiki/Snap_(package_manager)) is based on read-only and compressed [SquashFS](https://en.wikipedia.org/wiki/SquashFS) Linux file system.
 8. Remove old MicroK8s installation and re-install a fresh instance based with newly created snap version: *"--dangerous"* option is now required since the tweaked .snap is no longer signed by its official provider, Canonical.
@@ -88,10 +90,10 @@ Below are some relevant excerpts of the last execution log:
 
 
 ```
-### execution date: Thu Nov 26 04:29:46 UTC 2020
+### execution date: Sat Nov 28 09:03:55 UTC 2020
  
 ### microk8s snap version:
-microk8s          v1.19.3    1791   1.19/stable      canonical*         classic
+microk8s          v1.19.3     1791   1.19/stable      canonical*         classic
  
 ### ubuntu version:
 Distributor ID:	Ubuntu
@@ -108,22 +110,6 @@ Client: Docker Engine - Community
  Built:             Wed Sep 16 17:02:52 2020
  OS/Arch:           linux/amd64
  Experimental:      false
-
-Server: Docker Engine - Community
- Engine:
-  Version:          19.03.13
-  API version:      1.40 (minimum version 1.12)
-  Go version:       go1.13.15
-  Git commit:       4484c46d9d
-  Built:            Wed Sep 16 17:01:20 2020
-  OS/Arch:          linux/amd64
-  Experimental:     false
- containerd:
-  Version:          1.3.7
-  GitCommit:        8fba4e9a7d01810a393d5d25a3621dc101981175
- docker-init:
-  Version:          0.18.0
-  GitCommit:        fec3683
  
 ### kata-runtime version:
 kata-runtime  : 1.12.0-rc0
@@ -138,16 +124,14 @@ System is capable of running Kata Containers
 -rwxr-xr-x 1 root root 9.7M Sep  9 15:40 /bin/runc
 -rwxr-xr-x 1 root root 31M Oct 22 16:51 /bin/kata-runtime
 
-### check available docker runtimes: 
- Runtimes: kata-runtime runc
+### check active OCI runtime: 
 
 ### test use of kata-runtime with alpine: 
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
-3c1efe1b2061        alpine              "sh"                2 seconds ago       Up Less than a second                          kata-alpine
-5aec6b9d70f4        busybox             "uname -a"          11 seconds ago      Exited (0) 8 seconds ago                       unruffled_bhabha
-        "Name": "/kata-alpine",
-        "Id": "3c1efe1b2061652de553b8aecd802056d750f954d87371ad0d6d6709b59e5233",
-            "Runtime": "kata-runtime",
+CONTAINER ID  IMAGE                            COMMAND  CREATED        STATUS                     PORTS   NAMES
+f65953d4f017  docker.io/library/alpine:latest  sh       2 seconds ago  Up Less than a second ago          kata-alpine
+        "Name": "kata-alpine",
+        "Id": "f65953d4f01710fe885aa9c566e3eb1af941a0979e2b3ded74aa3a7152215a1d",
+        "OCIRuntime": "kata-runtime",
 
 ### install microk8s:
 microk8s is running
@@ -194,23 +178,23 @@ service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
 nginx-test                                 0/1     ContainerCreating   0          2s
-helloworld-go-deployment-86f5466d4-lxfp9   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-fstnc   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-c42xm   0/1     ContainerCreating   0          0s
-autoscale-go-deployment-5894658957-rksq8   0/1     ContainerCreating   0          0s
+helloworld-go-deployment-86f5466d4-87277   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-c8z4v   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-h5cw5   0/1     ContainerCreating   0          0s
+autoscale-go-deployment-5894658957-8xjgc   0/1     ContainerCreating   0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
 nginx-test                                 1/1     Running   0          2m2s
-helloworld-go-deployment-86f5466d4-fstnc   1/1     Running   0          2m1s
-autoscale-go-deployment-5894658957-rksq8   1/1     Running   0          2m
-autoscale-go-deployment-5894658957-c42xm   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-lxfp9   1/1     Running   0          2m1s
-NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m33s
-helloworld-go   NodePort    10.152.183.3     <none>        80:31001/TCP   2m1s
-autoscale-go    NodePort    10.152.183.233   <none>        80:30211/TCP   2m
+autoscale-go-deployment-5894658957-8xjgc   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-h5cw5   1/1     Running   0          2m
+helloworld-go-deployment-86f5466d4-87277   1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-c8z4v   1/1     Running   0          2m1s
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+kubernetes      ClusterIP   10.152.183.1    <none>        443/TCP        2m33s
+helloworld-go   NodePort    10.152.183.43   <none>        80:31776/TCP   2m1s
+autoscale-go    NodePort    10.152.183.91   <none>        80:31498/TCP   2m
 
 calling helloworld-go...
 
@@ -264,24 +248,24 @@ deployment.apps/helloworld-go-deployment created
 service/autoscale-go created
 deployment.apps/autoscale-go-deployment created
 NAME                                       READY   STATUS              RESTARTS   AGE
-nginx-test                                 0/1     ContainerCreating   0          2s
-helloworld-go-deployment-86f5466d4-hj9x4   0/1     ContainerCreating   0          1s
-helloworld-go-deployment-86f5466d4-zc827   0/1     ContainerCreating   0          1s
-autoscale-go-deployment-5894658957-s725t   0/1     Pending             0          0s
-autoscale-go-deployment-5894658957-chr7q   0/1     ContainerCreating   0          0s
+nginx-test                                 0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-l7t2q   0/1     ContainerCreating   0          1s
+helloworld-go-deployment-86f5466d4-vkf6r   0/1     ContainerCreating   0          1s
+autoscale-go-deployment-5894658957-hcdcr   0/1     ContainerCreating   0          0s
+autoscale-go-deployment-5894658957-sdx8d   0/1     ContainerCreating   0          0s
 
 waiting for ready pods...
 
 NAME                                       READY   STATUS    RESTARTS   AGE
-nginx-test                                 1/1     Running   0          2m2s
-autoscale-go-deployment-5894658957-s725t   1/1     Running   0          2m
-autoscale-go-deployment-5894658957-chr7q   1/1     Running   0          2m
-helloworld-go-deployment-86f5466d4-zc827   1/1     Running   0          2m1s
-helloworld-go-deployment-86f5466d4-hj9x4   1/1     Running   0          2m1s
+nginx-test                                 1/1     Running   0          2m1s
+helloworld-go-deployment-86f5466d4-l7t2q   1/1     Running   0          2m1s
+autoscale-go-deployment-5894658957-hcdcr   1/1     Running   0          2m
+autoscale-go-deployment-5894658957-sdx8d   1/1     Running   0          2m
+helloworld-go-deployment-86f5466d4-vkf6r   1/1     Running   0          2m1s
 NAME            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m24s
-helloworld-go   NodePort    10.152.183.179   <none>        80:32715/TCP   2m1s
-autoscale-go    NodePort    10.152.183.100   <none>        80:32576/TCP   2m
+kubernetes      ClusterIP   10.152.183.1     <none>        443/TCP        2m35s
+helloworld-go   NodePort    10.152.183.172   <none>        80:30885/TCP   2m2s
+autoscale-go    NodePort    10.152.183.107   <none>        80:30385/TCP   2m1s
 
 calling helloworld-go...
 
@@ -291,10 +275,10 @@ calling autoscale-go with request for biggest prime under 10 000 and 5 MB memory
 
 Allocated 5 Mb of memory.
 The largest prime less than 10000 is 9973.
-Slept for 100.15 milliseconds.
+Slept for 100.14 milliseconds.
 
 ### check proper symlink from microk8s runc:
-lrwxrwxrwx 1 root root 30 Nov 26 04:24 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
+lrwxrwxrwx 1 root root 30 Nov 28 08:58 /snap/microk8s/current/bin/runc -> squashfs-root/bin/kata-runtime
 -rwxr-xr-x 1 root root 31560112 Oct 22 16:51 /bin/kata-runtime
--rwxr-xr-x 1 root root 31560112 Nov 26 04:24 /snap/microk8s/current/bin/kata-runtime
+-rwxr-xr-x 1 root root 31560112 Nov 28 08:58 /snap/microk8s/current/bin/kata-runtime
 ```
