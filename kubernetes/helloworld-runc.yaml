@@ -34,4 +34,4 @@ spec:
         - containerPort: 8080
         env:
         - name: TARGET
-          value: "Kata Containers"
+          value: "Runc Containers"
