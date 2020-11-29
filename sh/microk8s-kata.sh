@@ -336,7 +336,7 @@ cd microk8s-squash
 MK8S_SNAP=$(mount | grep 'var/lib/snapd/snaps/microk8s' | awk '{printf $1}')
 ls -l "$MK8S_SNAP"
 sudo unsquashfs "$MK8S_SNAP"
-sudo cp /bin/kata-runtime squashfs-root/bin/kata-runtime
+sudo cp "$KATA_PATH" squashfs-root/bin/kata-runtime
 sudo mv squashfs-root/bin/runc squashfs-root/bin/runc.bak
 sudo ln -s squashfs-root/bin/kata-runtime squashfs-root/bin/runc
 sudo mksquashfs squashfs-root/ "$(basename $MK8S_SNAP)" -noappend -always-use-fragments | tee -a "$REPORT"
@@ -393,9 +393,9 @@ curl -s "http://$(sudo microk8s kubectl get service autoscale-go -n default --no
 echo -e "\n### check proper symlink from microk8s runc:" | tee -a "$REPORT"
 ls -l /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 [[ -L /snap/microk8s/current/bin/runc ]]
-ls -l /bin/kata-runtime | tee -a "$REPORT"
+ls -l "$KATA_PATH" | tee -a "$REPORT"
 ls -l /snap/microk8s/current/bin/kata-runtime | tee -a "$REPORT"
-cmp /bin/kata-runtime /snap/microk8s/current/bin/kata-runtime
+cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime
 
 echo -e "\n### prepare execution report:"
 
@@ -415,11 +415,11 @@ echo "$(docker version)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "### kata-runtime version:" >> "$REPORT.tmp"
-kata-runtime --version >> "$REPORT.tmp"
+"$KATA_PATH" --version >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "### kata-runtime check:" >> "$REPORT.tmp"
-kata-runtime kata-check -n >> "$REPORT.tmp"
+"$KATA_PATH" kata-check -n >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 cat $REPORT >> "$REPORT.tmp"
