@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-runc
+spec:
+  containers:
+  - name: nginx-runc
+    image: nginx
+  hostNetwork: true
+  dnsPolicy: Default

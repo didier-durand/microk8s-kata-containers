@@ -6,5 +6,5 @@ metadata:
     io.kubernetes.cri.untrusted-workload: "true"
 spec:
   containers:
-  - name: nginx
+  - name: nginx-untrusted
     image: nginx

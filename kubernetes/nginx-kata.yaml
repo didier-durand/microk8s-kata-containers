@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-test
+  name: nginx-kata
 spec:
   containers:
-  - name: nginx-test
+  - name: nginx-kata
     image: nginx
   hostNetwork: true
   dnsPolicy: Default
