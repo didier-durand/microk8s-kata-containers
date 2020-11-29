@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: helloworld-go
+  name: helloworld-runc
 spec:
   selector:
-    app: helloworld-go
+    app: helloworld-runc
   ports:
     - protocol: TCP
       port: 80
@@ -14,21 +14,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: helloworld-go-deployment
+  name: helloworld-runc-deployment
   labels:
-    app: helloworld-go
+    app: helloworld-runc
 spec:
   selector:
     matchLabels:
-      app: helloworld-go
+      app: helloworld-runc
   replicas: 2
   template:
     metadata:
       labels:
-        app: helloworld-go
+        app: helloworld-runc
     spec:
       containers:
-      - name: helloworld-go
+      - name: helloworld-runc
         image: didierdurand/helloworld-go
         ports:
         - containerPort: 8080
