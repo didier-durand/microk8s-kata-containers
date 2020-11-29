@@ -287,21 +287,21 @@ fi
 echo -e "\n### check container runtime on microk8s snap:" | tee -a "$REPORT"
 ls -lh /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 
-echo -e "\n### TEST WITH RUNC\n" | tee -a "$REPORT"
+echo -e "\n### TEST WITH INITIAL RUNC\n" | tee -a "$REPORT"
 
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml"
 
-echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee -a "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee -a "$REPORT"
+echo -e "\n### test microk8s with helloworld-runc & autoscale-runc: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-runc.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-runc.yaml" | tee -a "$REPORT"
 
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 
 echo -e "\nwaiting for ready pods...\n" >> "$REPORT"
 sleep 120s
 # wait --for=condition=available : currently unstable with MicroK8s
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee -a "$REPORT"  || true
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee -a "$REPORT" || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-runc-deployment -n default | tee -a "$REPORT"  || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-runc-deployment -n default | tee -a "$REPORT" || true
 
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
@@ -314,19 +314,18 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
-echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
-curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
-curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Kata Containers!'
+echo -e "\ncalling helloworld-runc...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service helloworld-runc -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service helloworld-runc -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Runc Containers!'
 
 #source: https://knative.dev/docs/serving/autoscaling/autoscale-go/
-#curl "http://autoscale-go.default.1.2.3.4.xip.io?sleep=100&prime=10000&bloat=5"
-echo -e "\ncalling autoscale-go with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
-curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
-curl -s "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
+#curl "http://autoscale-runc.default.1.2.3.4.xip.io?sleep=100&prime=10000&bloat=5"
+echo -e "\ncalling autoscale-runc with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service autoscale-runc -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service autoscale-runc -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
 
 echo -e "\n### extend microk8s snap with kata-runtime:"
 sudo microk8s stop
-
 if [[ -d microk8s-squash ]]
 then
   sudo rm -rf microk8s-squash
@@ -336,9 +335,14 @@ cd microk8s-squash
 MK8S_SNAP=$(mount | grep 'var/lib/snapd/snaps/microk8s' | awk '{printf $1}')
 ls -l "$MK8S_SNAP"
 sudo unsquashfs "$MK8S_SNAP"
-sudo cp "$KATA_PATH" squashfs-root/bin/kata-runtime
 sudo mv squashfs-root/bin/runc squashfs-root/bin/runc.bak
-sudo ln -s squashfs-root/bin/kata-runtime squashfs-root/bin/runc
+sudo cp /bin/runc squashfs-root/bin/runc
+sudo cp "$KATA_PATH" squashfs-root/bin/kata-runtime
+echo -e "\ncontainers runtimes in new snap: " | tee -a "$REPORT"
+ls -l squashfs-root/bin/runc.bak
+ls -l squashfs-root/bin/runc
+ls -l squashfs-root/bin/kata-runtime
+#sudo ln -s squashfs-root/bin/kata-runtime squashfs-root/bin/runc
 sudo mksquashfs squashfs-root/ "$(basename $MK8S_SNAP)" -noappend -always-use-fragments | tee -a "$REPORT"
 cd
 ls -lh "microk8s-squash/$(basename $MK8S_SNAP)"
@@ -353,21 +357,32 @@ echo -e "\n### restart microk8s: "
 sudo microk8s start
 sudo microk8s status --wait-ready | tee -a "$REPORT"
 
-echo -e "\n### TEST WITH KATA-RUNTIME\n" | tee -a "$REPORT"
+echo -e "\n### TEST WITH KATA-RUNTIME AND UPDATED RUNC\n" | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml"
+echo -e "\n### deploy K8s runtime class for kata: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/kata-runtime-class.yaml" | tee -a "$REPORT"
 
-echo -e "\n### test microk8s with helloworld-go & autoscale-go: " | tee -a "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-go.yaml" | tee -a "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-go.yaml" | tee -a "$REPORT"
+echo -e "\n### deploy nginx servers: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-runc.yaml"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-kata.yaml"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-untrusted.yaml"
+
+echo -e "\n### test microk8s with helloworld-runc & autoscale-runc: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-runc.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-runc.yaml" | tee -a "$REPORT"
+
+echo -e "\n### test microk8s with helloworld-kata & autoscale-kata: " | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-kata.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/autoscale-kata.yaml" | tee -a "$REPORT"
+
 
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 
 echo -e "\nwaiting for ready pods...\n" >> "$REPORT"
 sleep 120s
 # wait --for=condition=available : currently unstable with MicroK8s
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-go-deployment -n default | tee -a "$REPORT"  || true
-#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-go-deployment -n default | tee -a "$REPORT" || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/helloworld-runc-deployment -n default | tee -a "$REPORT"  || true
+#sudo microk8s kubectl wait --for=condition=available --timeout=1000s deployment.apps/autoscale-runc-deployment -n default | tee -a "$REPORT" || true
 
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
@@ -380,21 +395,29 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
-echo -e "\ncalling helloworld-go...\n" >> "$REPORT"
-curl -v "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
-curl -s "http://$(sudo microk8s kubectl get service helloworld-go -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Kata Containers!'
+echo -e "\ncalling helloworld-runc...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service helloworld-runc -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service helloworld-runc -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Runc Containers!'
+
+echo -e "\ncalling helloworld-kata...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service helloworld-kata -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service helloworld-kata -n default --no-headers | awk '{print $3}')" | grep -m 1 'Hello World: Kata Containers!'
 
 #source: https://knative.dev/docs/serving/autoscaling/autoscale-go/
 #curl "http://autoscale-go.default.1.2.3.4.xip.io?sleep=100&prime=10000&bloat=5"
-echo -e "\ncalling autoscale-go with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
-curl -v "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
-curl -s "http://$(sudo microk8s kubectl get service autoscale-go -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
+echo -e "\ncalling autoscale-runc with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service autoscale-runc -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service autoscale-runc -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
+
+echo -e "\ncalling autoscale-kata with request for biggest prime under 10 000 and 5 MB memory...\n" >> "$REPORT"
+curl -v "http://$(sudo microk8s kubectl get service autoscale-kata -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
+curl -s "http://$(sudo microk8s kubectl get service autoscale-kata -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
 
 echo -e "\n### check proper symlink from microk8s runc:" | tee -a "$REPORT"
+#[[ -L /snap/microk8s/current/bin/runc ]]
 ls -l /snap/microk8s/current/bin/runc | tee -a "$REPORT"
-[[ -L /snap/microk8s/current/bin/runc ]]
-ls -l "$KATA_PATH" | tee -a "$REPORT"
 ls -l /snap/microk8s/current/bin/kata-runtime | tee -a "$REPORT"
+cmp /bin/runc /snap/microk8s/current/bin/runc
 cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime
 
 echo -e "\n### prepare execution report:"
