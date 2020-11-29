@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworld-kata
+spec:
+  selector:
+    app: helloworld-kata
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-kata-deployment
+  labels:
+    app: helloworld-kata
+spec:
+  selector:
+    matchLabels:
+      app: helloworld-kata
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: helloworld-kata
+    spec:
+      containers:
+      - name: helloworld-kata
+        image: didierdurand/helloworld-go
+        ports:
+        - containerPort: 8080
+        env:
+        - name: TARGET
+          value: "Kata Containers"
