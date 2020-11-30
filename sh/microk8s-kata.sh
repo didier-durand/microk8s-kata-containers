@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#https://developers.redhat.com/blog/2019/02/21/podman-and-buildah-for-docker-users/
+#https://github.com/kata-containers/documentation/blob/master/how-to/containerd-kata.md
 
 set -e
 trap 'catch $? $LINENO' EXIT
@@ -289,7 +289,7 @@ ls -lh /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 
 echo -e "\n### TEST WITH INITIAL RUNC\n" | tee -a "$REPORT"
 
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-test.yaml"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-runc.yaml"
 
 echo -e "\n### test microk8s with helloworld-runc & autoscale-runc: " | tee -a "$REPORT"
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-runc.yaml" | tee -a "$REPORT"
@@ -307,12 +307,12 @@ sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
 #echo -e "\n### lscpu:" | tee -a "$REPORT"
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
-#sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-runc -- lscpu
+#sudo microk8s kubectl exec --stdin --tty nginx-runc -- lscpu | grep 'Vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-runc -- lscpu | grep 'Model name' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-runc -- lscpu | grep 'Virtualization' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-runc -- lscpu | grep 'Hypervisor vendor' | tee -a "$REPORT" || true
+#sudo microk8s kubectl exec --stdin --tty nginx-runc-- lscpu | grep 'Virtualization type' | tee -a "$REPORT" || true
 
 echo -e "\ncalling helloworld-runc...\n" >> "$REPORT"
 curl -v "http://$(sudo microk8s kubectl get service helloworld-runc -n default --no-headers | awk '{print $3}')" | tee -a "$REPORT"
@@ -347,7 +347,34 @@ sudo mksquashfs squashfs-root/ "$(basename $MK8S_SNAP)" -noappend -always-use-fr
 cd
 ls -lh "microk8s-squash/$(basename $MK8S_SNAP)"
 
-echo -e "\n### re-install microk8s incl kata-runtime: " | tee -a "$REPORT"
+export CONTAINERD_TOML='/var/snap/microk8s/current/args/containerd.toml'
+export KATA_HANDLER_BEFORE='[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+      # runtime_type is the runtime type to use in containerd e.g. io.containerd.runtime.v1.linux
+      runtime_type = "io.containerd.runc.v1"'
+      
+#https://github.com/kata-containers/documentation/blob/master/how-to/containerd-kata.md
+export KATA_HANDLER_AFTER='[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+      # runtime_type is the runtime type to use in containerd e.g. io.containerd.runtime.v1.linux
+      runtime_type = "io.containerd.runc.v1"
+      
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
+      runtime_type = "io.containerd.runtime.v1.linux"
+      runtime_engine = "/usr/bin/kata-runtime"'
+
+if [[ ! -f  "$CONTAINERD_TOML.bak" ]]
+then 
+  echo -e "\n### backup containerd config: "
+  sudo cp "$CONTAINERD_TOML" "$CONTAINERD_TOML.bak"
+fi
+
+if [[ -z $(sudo cat $CONTAINERD_TOML | grep 'kata-runtme') ]]
+then
+  echo -e "\n### extend containerd config: " | tee -a "$REPORT"
+  sudo cat "$CONTAINERD_TOML" | sed "s!$KATA_HANDLER_BEFORE!$KATA_HANDLER_AFTER!" | sudo tee "$CONTAINERD_TOML" || true
+fi
+
+echo -e "\n### re-install microk8s including kata-runtime: " | tee -a "$REPORT"
+set -x
 sudo microk8s start
 sudo microk8s status --wait-ready
 sudo snap remove microk8s
@@ -356,16 +383,20 @@ sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)"
 echo -e "\n### restart microk8s: "
 sudo microk8s start
 sudo microk8s status --wait-ready | tee -a "$REPORT"
+set +x
 
 echo -e "\n### TEST WITH KATA-RUNTIME AND UPDATED RUNC\n" | tee -a "$REPORT"
 
 echo -e "\n### deploy K8s runtime class for kata: " | tee -a "$REPORT"
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/kata-runtime-class.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl get runtimeclass -o wide
+sudo microk8s kubectl get runtimeclass | grep 'kata-runtime' && echo 'kara-runtime detected as K8s runtime class'
+
 
 echo -e "\n### deploy nginx servers: " | tee -a "$REPORT"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-runc.yaml"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-kata.yaml"
-sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-untrusted.yaml"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-runc.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-kata.yaml" | tee -a "$REPORT"
+sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/nginx-untrusted.yaml" | tee -a "$REPORT"
 
 echo -e "\n### test microk8s with helloworld-runc & autoscale-runc: " | tee -a "$REPORT"
 sudo microk8s kubectl apply -f "https://raw.githubusercontent.com/didier-durand/microk8s-kata-containers/main/kubernetes/helloworld-runc.yaml" | tee -a "$REPORT"
@@ -386,6 +417,10 @@ sleep 120s
 
 sudo microk8s kubectl get pods -n default | tee -a "$REPORT"
 sudo microk8s kubectl get services -n default | tee -a "$REPORT"
+
+#sudo microk8s kubectl exec --stdin --tty shell-demo -- /bin/bash
+#sudo microk8s kubectl exec nginx-runc-deployment-d9fff6df7-9hcbb -- uname -a
+#sudo microk8s kubectl exec nginx-runc-deployment-d9fff6df7-9hcbb -- uname -a
 
 #echo -e "\n### lscpu:" | tee -a "$REPORT"
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
@@ -413,12 +448,12 @@ echo -e "\ncalling autoscale-kata with request for biggest prime under 10 000 an
 curl -v "http://$(sudo microk8s kubectl get service autoscale-kata -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | tee -a "$REPORT"
 curl -s "http://$(sudo microk8s kubectl get service autoscale-kata -n default --no-headers | awk '{print $3}')?sleep=100&prime=10000&bloat=5" | grep 'The largest prime less than 10000 is 9973'
 
-echo -e "\n### check proper symlink from microk8s runc:" | tee -a "$REPORT"
+echo -e "\n### check microk8s runtimes:" | tee -a "$REPORT"
 #[[ -L /snap/microk8s/current/bin/runc ]]
 ls -l /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 ls -l /snap/microk8s/current/bin/kata-runtime | tee -a "$REPORT"
-cmp /bin/runc /snap/microk8s/current/bin/runc
-cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime
+cmp /bin/runc /snap/microk8s/current/bin/runc && echo 'microk8s runc version identical to runc on host' | tee -a "$REPORT"
+cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime && echo 'microk8s kata-runtime version identical to kata-runtime on host' | tee -a "$REPORT"
 
 echo -e "\n### prepare execution report:"
 
@@ -433,8 +468,12 @@ echo "### ubuntu version:" >> "$REPORT.tmp"
 echo "$(lsb_release -a)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
-echo "### docker version:" >> "$REPORT.tmp"
-echo "$(docker version)" >> "$REPORT.tmp"
+echo "### podman version:" >> "$REPORT.tmp"
+echo "$(podman version)" >> "$REPORT.tmp"
+echo " " >> "$REPORT.tmp"
+
+echo "### containerd version:" >> "$REPORT.tmp"
+echo "$(containerd --version)" >> "$REPORT.tmp"
 echo " " >> "$REPORT.tmp"
 
 echo "### kata-runtime version:" >> "$REPORT.tmp"
