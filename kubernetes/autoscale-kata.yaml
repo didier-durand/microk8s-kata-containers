@@ -21,7 +21,7 @@ spec:
   selector:
     matchLabels:
       app: autoscale-kata
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
