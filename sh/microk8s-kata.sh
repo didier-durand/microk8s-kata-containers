@@ -129,7 +129,9 @@ then
       create_gce_instance "$KATA_INSTANCE" "$KATA_IMAGE"
       
       gcloud compute ssh $KATA_INSTANCE --command='sudo rm -rf /var/lib/apt/lists/* && sudo apt update -y && (sudo apt upgrade -y && sudo apt upgrade -y) && sudo apt autoremove  -y' --zone $GCP_ZONE --project=$GCP_PROJECT
-      gcloud compute scp $0  $KATA_INSTANCE:$(basename $0) --zone $GCP_ZONE --project=$GCP_PROJECT
+      gcloud compute scp $0  "$KATA_INSTANCE:$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
+      gcloud compute scp 'data/containerd.toml'  "$KATA_INSTANCE:containerd.toml" --zone $GCP_ZONE --project=$GCP_PROJECT
+      gcloud compute scp 'data/containerd.toml.bak'  "$KATA_INSTANCE:containerd.toml.bak" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="sudo chmod ugo+x ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       gcloud compute ssh $KATA_INSTANCE --command="bash ./$(basename $0)" --zone $GCP_ZONE --project=$GCP_PROJECT
       
@@ -348,18 +350,15 @@ cd
 ls -lh "microk8s-squash/$(basename $MK8S_SNAP)"
 
 export CONTAINERD_TOML='/var/snap/microk8s/current/args/containerd.toml'
-export KATA_HANDLER_BEFORE='[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-      # runtime_type is the runtime type to use in containerd e.g. io.containerd.runtime.v1.linux
-      runtime_type = "io.containerd.runc.v1"'
-      
+export KATA_HANDLER_BEFORE='[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-container-runtime]'   
 #https://github.com/kata-containers/documentation/blob/master/how-to/containerd-kata.md
-export KATA_HANDLER_AFTER='[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-      # runtime_type is the runtime type to use in containerd e.g. io.containerd.runtime.v1.linux
-      runtime_type = "io.containerd.runc.v1"
-      
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
-      runtime_type = "io.containerd.runtime.v1.linux"
-      runtime_engine = "/usr/bin/kata-runtime"'
+export KATA_HANDLER_AFTER='
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata-runtime]
+      runtime_type = "io.containerd.kata-runtime.v1"
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata-runtime.options]
+        BinaryName = "kata-runtime"
+        
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-container-runtime]'
 
 if [[ ! -f  "$CONTAINERD_TOML.bak" ]]
 then 
@@ -367,10 +366,16 @@ then
   sudo cp "$CONTAINERD_TOML" "$CONTAINERD_TOML.bak"
 fi
 
+#if [[ -z $(sudo cat $CONTAINERD_TOML | grep 'kata-runtme') ]]
+#then
+#  echo -e "\n### extend containerd config: " | tee -a "$REPORT"
+#  sudo cat "$CONTAINERD_TOML" | sed "s!$KATA_HANDLER_BEFORE!$KATA_HANDLER_AFTER!" | sudo tee "$CONTAINERD_TOML" || true
+#fi
+
 if [[ -z $(sudo cat $CONTAINERD_TOML | grep 'kata-runtme') ]]
 then
   echo -e "\n### extend containerd config: " | tee -a "$REPORT"
-  sudo cat "$CONTAINERD_TOML" | sed "s!$KATA_HANDLER_BEFORE!$KATA_HANDLER_AFTER!" | sudo tee "$CONTAINERD_TOML" || true
+  yes | sudo cp 'containerd.toml' "$CONTAINERD_TOML"
 fi
 
 echo -e "\n### re-install microk8s including kata-runtime: " | tee -a "$REPORT"
@@ -380,10 +385,18 @@ sudo microk8s status --wait-ready
 sudo snap remove microk8s
 sudo snap install --classic --dangerous "microk8s-squash/$(basename $MK8S_SNAP)" | tee -a "$REPORT"
 
+if [[ -z $(sudo cat $CONTAINERD_TOML | grep 'kata-runtme') ]]
+then
+  echo -e "\n### extend containerd config: " | tee -a "$REPORT"
+  yes | sudo cp 'containerd.toml' "$CONTAINERD_TOML"
+fi
+
+
 echo -e "\n### restart microk8s: "
 sudo microk8s start
 sudo microk8s status --wait-ready | tee -a "$REPORT"
-set +x
+
+
 
 echo -e "\n### TEST WITH KATA-RUNTIME AND UPDATED RUNC\n" | tee -a "$REPORT"
 
@@ -420,7 +433,8 @@ sudo microk8s kubectl get services -n default | tee -a "$REPORT"
 
 #sudo microk8s kubectl exec --stdin --tty shell-demo -- /bin/bash
 #sudo microk8s kubectl exec nginx-runc-deployment-d9fff6df7-9hcbb -- uname -a
-#sudo microk8s kubectl exec nginx-runc-deployment-d9fff6df7-9hcbb -- uname -a
+#sudo microk8s kubectl exec cat /etc/mtab
+#sudo microk8s kubectl exec grep -m 1 kataShared /etc/mtab
 
 #echo -e "\n### lscpu:" | tee -a "$REPORT"
 #sudo microk8s kubectl exec --stdin --tty nginx-test -- lscpu
@@ -452,8 +466,8 @@ echo -e "\n### check microk8s runtimes:" | tee -a "$REPORT"
 #[[ -L /snap/microk8s/current/bin/runc ]]
 ls -l /snap/microk8s/current/bin/runc | tee -a "$REPORT"
 ls -l /snap/microk8s/current/bin/kata-runtime | tee -a "$REPORT"
-cmp /bin/runc /snap/microk8s/current/bin/runc && echo 'microk8s runc version identical to runc on host' | tee -a "$REPORT"
-cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime && echo 'microk8s kata-runtime version identical to kata-runtime on host' | tee -a "$REPORT"
+cmp /bin/runc /snap/microk8s/current/bin/runc && echo 'runc binary identical: microk8s <> host' | tee -a "$REPORT"
+cmp "$KATA_PATH" /snap/microk8s/current/bin/kata-runtime && echo 'kata-runtime binary identical:  microk8s <> host' | tee -a "$REPORT"
 
 echo -e "\n### prepare execution report:"
 
